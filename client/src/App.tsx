@@ -4,6 +4,7 @@ import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { AppProvider } from "./contexts/AppContext";
+import Landing from "./pages/Landing";
 import Home from "./pages/Home";
 import Phase1Upload from "./pages/Phase1Upload";
 import Phase2KI from "./pages/Phase2KI";
@@ -19,7 +20,8 @@ import OnboardingTour from "./components/OnboardingTour";
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={Home} />
+      <Route path="/" component={Landing} />
+      <Route path="/dashboard" component={Home} />
       <Route path="/phase/1" component={Phase1Upload} />
       <Route path="/phase/2" component={Phase2KI} />
       <Route path="/phase/3" component={Phase3Quiz} />

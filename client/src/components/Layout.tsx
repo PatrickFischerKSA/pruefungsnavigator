@@ -15,7 +15,7 @@ import PersonenModus from "./PersonenModus";
 import { useApp } from "@/contexts/AppContext";
 
 const navItems = [
-  { href: "/", label: "Dashboard", icon: LayoutDashboard, color: "text-cyan-400" },
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, color: "text-cyan-400" },
   { href: "/phase/1", label: "Phase 1 – Unterlagen", icon: Upload, color: "text-cyan-400", phase: 1 },
   { href: "/phase/2", label: "Phase 2 – KI-Analyse", icon: Brain, color: "text-emerald-400", phase: 2 },
   { href: "/phase/3", label: "Phase 3 – Probeprüfung", icon: FlaskConical, color: "text-amber-400", phase: 3 },
