@@ -4,6 +4,7 @@
    ============================================================ */
 import { useState } from "react";
 import Layout from "@/components/Layout";
+import { useApp } from "@/contexts/AppContext";
 import { FlaskConical, Copy, ExternalLink, ArrowRight, ArrowLeft, CheckCircle, XCircle, RotateCcw, Lightbulb, ChevronDown, ChevronUp } from "lucide-react";
 import { Link } from "wouter";
 import { toast } from "sonner";
@@ -106,6 +107,8 @@ const quizTools = [
 ];
 
 export default function Phase3Quiz() {
+  const { state, selectedFach, completePhase } = useApp();
+  const isDone = state.completedPhases.includes(3);
   const [quizStarted, setQuizStarted] = useState(false);
   const [currentQ, setCurrentQ] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
@@ -153,7 +156,7 @@ export default function Phase3Quiz() {
             </div>
           </div>
           <p className="text-slate-400 text-sm max-w-2xl">
-            Generiere mit KI eine massgeschneiderte Probeprüfung, erkenne deine Wissenslücken und erstelle einen adaptiven Lernplan. Oder teste dich direkt mit dem Demo-Quiz.
+            Generiere mit KI eine massgeschneiderte Probeprüfung für <strong className="text-slate-300">{selectedFach.emoji} {selectedFach.label}</strong>{state.pruefungsthema ? ` (${state.pruefungsthema})` : ""}, erkenne deine Wissenslücken und erstelle einen adaptiven Lernplan.
           </p>
         </div>
 
@@ -363,16 +366,24 @@ export default function Phase3Quiz() {
         <div className="flex items-center justify-between pt-4 border-t border-white/8">
           <Link href="/phase/2">
             <button className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-white/15 text-slate-400 hover:text-white hover:border-white/30 text-sm font-semibold transition-all" style={{ fontFamily: "Outfit, sans-serif" }}>
-              <ArrowLeft size={14} />
-              Phase 2
+              <ArrowLeft size={14} />Phase 2
             </button>
           </Link>
-          <Link href="/phase/4">
-            <button className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold text-sm transition-all duration-200" style={{ fontFamily: "Outfit, sans-serif" }}>
-              Weiter zu Phase 4
-              <ArrowRight size={14} />
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => { completePhase(3); toast.success("Phase 3 als abgeschlossen markiert!"); }}
+              className={`inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border text-xs font-semibold transition-all ${isDone ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300" : "border-white/15 text-slate-400 hover:text-white hover:border-white/30"}`}
+              style={{ fontFamily: "Outfit, sans-serif" }}
+            >
+              <CheckCircle size={13} />
+              {isDone ? "Abgeschlossen ✓" : "Als erledigt markieren"}
             </button>
-          </Link>
+            <Link href="/phase/4">
+              <button className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold text-sm transition-all duration-200" style={{ fontFamily: "Outfit, sans-serif" }}>
+                Weiter zu Phase 4<ArrowRight size={14} />
+              </button>
+            </Link>
+          </div>
         </div>
       </div>
     </Layout>

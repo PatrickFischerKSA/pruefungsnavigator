@@ -3,6 +3,7 @@
    Design: Functional Futurism
    ============================================================ */
 import Layout from "@/components/Layout";
+import { useApp } from "@/contexts/AppContext";
 import { GraduationCap, ExternalLink, Copy, CheckCircle, Users, Eye, MessageSquare, FileText, Lightbulb, BookOpen, ClipboardList, ArrowRight } from "lucide-react";
 import { Link } from "wouter";
 import { toast } from "sonner";
@@ -106,6 +107,7 @@ const phaseOverview = [
 ];
 
 export default function LehrerView() {
+  const { state, selectedFach, progressPercent } = useApp();
   const colorMap: Record<string, string> = {
     cyan: "border-cyan-500/30 bg-cyan-500/8 text-cyan-300",
     emerald: "border-emerald-500/30 bg-emerald-500/8 text-emerald-300",
@@ -137,6 +139,30 @@ export default function LehrerView() {
           <p className="text-slate-400 text-sm max-w-2xl">
             Als Lehrperson kannst du den Lernprozess der Schüler*innen mitlesen, kommentieren und gezielt Feedback geben. Alle Tools sind kostenlos und erfordern keine zusätzliche Software.
           </p>
+          {/* Aktueller Fortschritt der Lernenden */}
+          <div className="mt-4 p-4 rounded-xl border border-white/8 bg-white/2 flex flex-col sm:flex-row sm:items-center gap-4">
+            <div className="flex-1">
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-slate-300 text-xs font-semibold" style={{ fontFamily: "Outfit, sans-serif" }}>
+                  Aktueller Lernstand: {selectedFach.emoji} {selectedFach.label}{state.pruefungsthema ? ` – ${state.pruefungsthema}` : ""}
+                </span>
+                <span className="text-cyan-400 text-xs font-bold" style={{ fontFamily: "Outfit, sans-serif" }}>{progressPercent}%</span>
+              </div>
+              <div className="h-2 bg-white/8 rounded-full overflow-hidden">
+                <div
+                  className="h-full rounded-full transition-all duration-700"
+                  style={{ width: `${progressPercent}%`, background: "linear-gradient(90deg, #06b6d4, #10b981)" }}
+                />
+              </div>
+            </div>
+            <div className="flex gap-2">
+              {[1,2,3,4,5].map(n => (
+                <div key={n} className={`w-7 h-7 rounded-lg border text-xs font-bold flex items-center justify-center transition-all ${state.completedPhases.includes(n) ? "bg-emerald-500 border-emerald-500 text-white" : "border-white/15 text-slate-500"}`} style={{ fontFamily: "Outfit, sans-serif" }}>
+                  {n}
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* Phase Overview */}

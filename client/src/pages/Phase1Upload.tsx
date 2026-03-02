@@ -4,7 +4,8 @@
    ============================================================ */
 import { useState, useRef } from "react";
 import Layout from "@/components/Layout";
-import { Upload, FileText, X, CheckCircle, ArrowRight, Info, BookOpen, ClipboardList, ExternalLink, Lightbulb } from "lucide-react";
+import { useApp } from "@/contexts/AppContext";
+import { Upload, FileText, X, CheckCircle, ArrowRight, BookOpen, ClipboardList, ExternalLink, Lightbulb } from "lucide-react";
 import { Link } from "wouter";
 import { toast } from "sonner";
 
@@ -17,6 +18,8 @@ interface UploadedFile {
 }
 
 export default function Phase1Upload() {
+  const { state, selectedFach, completePhase } = useApp();
+  const isDone = state.completedPhases.includes(1);
   const [unterlagen, setUnterlagen] = useState<UploadedFile[]>([]);
   const [modellPruefungen, setModellPruefungen] = useState<UploadedFile[]>([]);
   const unterlagenRef = useRef<HTMLInputElement>(null);
@@ -132,7 +135,7 @@ export default function Phase1Upload() {
             </div>
           </div>
           <p className="text-slate-400 text-sm max-w-2xl">
-            Lade zuerst deine Unterrichtsunterlagen und Modellprüfungen hoch. Diese Dateien werden lokal in deinem Browser gespeichert und dienen als Basis für alle weiteren Phasen. Anschliessend überträgst du sie in NotebookLM.
+            Lade deine Unterrichtsunterlagen und Modellprüfungen für <strong className="text-slate-300">{selectedFach.emoji} {selectedFach.label}</strong>{state.pruefungsthema ? ` – ${state.pruefungsthema}` : ""} hoch. Anschliessend überträgst du sie in NotebookLM.
           </p>
         </div>
 
@@ -216,15 +219,25 @@ export default function Phase1Upload() {
           <div className="text-slate-500 text-xs">
             {unterlagen.length + modellPruefungen.length} Datei(en) bereit
           </div>
-          <Link href="/phase/2">
+          <div className="flex items-center gap-3">
             <button
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-900 font-bold text-sm transition-all duration-200"
+              onClick={() => { completePhase(1); toast.success("Phase 1 als abgeschlossen markiert!"); }}
+              className={`inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border text-xs font-semibold transition-all ${isDone ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300" : "border-white/15 text-slate-400 hover:text-white hover:border-white/30"}`}
               style={{ fontFamily: "Outfit, sans-serif" }}
             >
-              Weiter zu Phase 2
-              <ArrowRight size={14} />
+              <CheckCircle size={13} />
+              {isDone ? "Abgeschlossen ✓" : "Als erledigt markieren"}
             </button>
-          </Link>
+            <Link href="/phase/2">
+              <button
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-900 font-bold text-sm transition-all duration-200"
+                style={{ fontFamily: "Outfit, sans-serif" }}
+              >
+                Weiter zu Phase 2
+                <ArrowRight size={14} />
+              </button>
+            </Link>
+          </div>
         </div>
       </div>
     </Layout>

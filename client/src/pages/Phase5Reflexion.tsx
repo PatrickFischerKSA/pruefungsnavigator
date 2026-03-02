@@ -5,6 +5,7 @@
    ============================================================ */
 import { useState } from "react";
 import Layout from "@/components/Layout";
+import { useApp } from "@/contexts/AppContext";
 import { Sparkles, ArrowLeft, Copy, Download, ExternalLink, CheckCircle, Lightbulb } from "lucide-react";
 import { Link } from "wouter";
 import { toast } from "sonner";
@@ -82,15 +83,10 @@ const fiveFingerFeedback = [
 ];
 
 export default function Phase5Reflexion() {
-  const [journal, setJournal] = useState({
-    gelernt: "",
-    schwierigkeit: "",
-    naechsterSchritt: "",
-    wasHatFunktioniert: "",
-    wasAendereIch: "",
-    wasBehaltIchBei: "",
-  });
-  const [fingerFeedback, setFingerFeedback] = useState<Record<string, string>>({});
+  const { state, selectedFach, updateJournal, setFingerFeedback: setGlobalFingerFeedback, completePhase } = useApp();
+  const journal = state.journal;
+  const fingerFeedback = state.fingerFeedback;
+  const isDone = state.completedPhases.includes(5);
   const [activePrompt, setActivePrompt] = useState<number | null>(null);
 
   const exportJournal = () => {
@@ -186,8 +182,8 @@ ${fiveFingerFeedback.map((f) => `${f.label}: ${fingerFeedback[f.label] || "(nich
                   <div key={field.key}>
                     <label className="text-slate-400 text-xs mb-1.5 block" style={{ fontFamily: "Outfit, sans-serif" }}>{field.label}</label>
                     <textarea
-                      value={journal[field.key as keyof typeof journal]}
-                      onChange={(e) => setJournal((prev) => ({ ...prev, [field.key]: e.target.value }))}
+                  value={journal[field.key as keyof typeof journal]}
+                      onChange={(e) => updateJournal(field.key as any, e.target.value)}
                       placeholder={field.placeholder}
                       rows={2}
                       className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-xs placeholder-slate-600 focus:outline-none focus:border-rose-500/40 resize-none transition-colors"
@@ -213,7 +209,7 @@ ${fiveFingerFeedback.map((f) => `${f.label}: ${fingerFeedback[f.label] || "(nich
                     <label className="text-slate-400 text-xs mb-1.5 block" style={{ fontFamily: "Outfit, sans-serif" }}>{field.label}</label>
                     <textarea
                       value={journal[field.key as keyof typeof journal]}
-                      onChange={(e) => setJournal((prev) => ({ ...prev, [field.key]: e.target.value }))}
+                      onChange={(e) => updateJournal(field.key as any, e.target.value)}
                       placeholder={field.placeholder}
                       rows={2}
                       className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-xs placeholder-slate-600 focus:outline-none focus:border-rose-500/40 resize-none transition-colors"
@@ -288,7 +284,7 @@ ${fiveFingerFeedback.map((f) => `${f.label}: ${fingerFeedback[f.label] || "(nich
                     </label>
                     <textarea
                       value={fingerFeedback[f.label] || ""}
-                      onChange={(e) => setFingerFeedback((prev) => ({ ...prev, [f.label]: e.target.value }))}
+                      onChange={(e) => setGlobalFingerFeedback(f.label, e.target.value)}
                       placeholder="Dein Feedback..."
                       rows={1}
                       className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-xs placeholder-slate-600 focus:outline-none resize-none transition-colors"
@@ -344,16 +340,24 @@ ${fiveFingerFeedback.map((f) => `${f.label}: ${fingerFeedback[f.label] || "(nich
         <div className="flex items-center justify-between pt-4 border-t border-white/8">
           <Link href="/phase/4">
             <button className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-white/15 text-slate-400 hover:text-white hover:border-white/30 text-sm font-semibold transition-all" style={{ fontFamily: "Outfit, sans-serif" }}>
-              <ArrowLeft size={14} />
-              Phase 4
+              <ArrowLeft size={14} />Phase 4
             </button>
           </Link>
-          <Link href="/">
-            <button className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-rose-500 hover:bg-rose-400 text-white font-bold text-sm transition-all duration-200" style={{ fontFamily: "Outfit, sans-serif" }}>
-              <Sparkles size={14} />
-              Zum Dashboard
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => { completePhase(5); toast.success("Phase 5 abgeschlossen – Prüfungsvorbereitung vollständig! 🎉"); }}
+              className={`inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border text-xs font-semibold transition-all ${isDone ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300" : "border-white/15 text-slate-400 hover:text-white hover:border-white/30"}`}
+              style={{ fontFamily: "Outfit, sans-serif" }}
+            >
+              <CheckCircle size={13} />
+              {isDone ? "Abgeschlossen ✓" : "Als erledigt markieren"}
             </button>
-          </Link>
+            <Link href="/">
+              <button className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-rose-500 hover:bg-rose-400 text-white font-bold text-sm transition-all duration-200" style={{ fontFamily: "Outfit, sans-serif" }}>
+                <Sparkles size={14} />Zum Dashboard
+              </button>
+            </Link>
+          </div>
         </div>
       </div>
     </Layout>

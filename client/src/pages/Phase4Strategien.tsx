@@ -2,11 +2,14 @@
    PHASE 4 – LERNSTRATEGIEN
    Design: Functional Futurism
    Basiert auf: Selbstlernheft_Lernstrategien.docx
+   Erweiterungen: localStorage via AppContext, Fortschritt-Tracking
    ============================================================ */
 import { useState } from "react";
 import Layout from "@/components/Layout";
+import { useApp } from "@/contexts/AppContext";
 import { BookOpen, ArrowRight, ArrowLeft, CheckCircle, ExternalLink, Zap, Brain, Clock, Users, Target } from "lucide-react";
 import { Link } from "wouter";
+import { toast } from "sonner";
 
 const strategies = [
   {
@@ -67,7 +70,7 @@ Bitte gib mir Feedback: Was habe ich richtig erklärt? Was fehlt oder ist ungena
       "Plane täglich 2–3 kurze Lernblöcke (je 25–45 Min.)",
       "Wiederhole frühere Themen regelmässig (Spaced Repetition)",
       "Nutze Quizlet für automatische Wiederholungsintervalle",
-      "Tracke deinen Fortschritt im Lernjournal (Phase 5)",
+      "Tracke deinen Fortschritt im Lerntracker unten",
     ],
     tool: "Quizlet (Spaced Repetition)",
     toolUrl: "https://quizlet.com",
@@ -89,7 +92,7 @@ Erstelle einen Lernplan nach dem Prinzip des verteilten Lernens. Verteile die Th
       "Identifiziere deine grössten Lernhindernisse (Ablenkung, Prokrastination, Müdigkeit)",
       "Formuliere für jedes Hindernis einen Wenn-Dann-Plan",
       "Schreibe die Pläne auf und platziere sie sichtbar",
-      "Nutze den Lerntracker (7 Kästchen) für tägliche Motivation",
+      "Nutze den Lerntracker für tägliche Motivation",
       "Reflektiere wöchentlich: Was hat funktioniert?",
     ],
     tool: "CryptPad oder Papier",
@@ -129,17 +132,9 @@ const wennDannExamples = [
 ];
 
 export default function Phase4Strategien() {
+  const { state, selectedFach, toggleCheckedItem, toggleLerntracker, completePhase } = useApp();
   const [activeStrategy, setActiveStrategy] = useState<string>("retrieval");
-  const [checkedSteps, setCheckedSteps] = useState<Set<string>>(new Set());
-
-  const toggleStep = (id: string) => {
-    setCheckedSteps((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  };
+  const isDone = state.completedPhases.includes(4);
 
   const colorMap: Record<string, string> = {
     cyan: "border-cyan-500/30 bg-cyan-500/8 text-cyan-300",
@@ -156,6 +151,15 @@ export default function Phase4Strategien() {
   const active = strategies.find((s) => s.id === activeStrategy)!;
   const Icon = active.icon;
 
+  // Streak aus globalem Lerntracker berechnen
+  const streak = (() => {
+    let s = 0;
+    for (let i = state.lerntracker.length - 1; i >= 0; i--) {
+      if (state.lerntracker[i]) s++; else break;
+    }
+    return s;
+  })();
+
   return (
     <Layout>
       <div className="container py-8">
@@ -167,9 +171,14 @@ export default function Phase4Strategien() {
               <p className="text-purple-400 text-xs font-semibold" style={{ fontFamily: "Outfit, sans-serif" }}>Phase 4 von 5</p>
               <h1 className="text-2xl font-black text-white" style={{ fontFamily: "Outfit, sans-serif" }}>Lern- & Motivationsstrategien</h1>
             </div>
+            {state.pruefungsthema && (
+              <span className="ml-2 px-2 py-0.5 rounded-full border border-purple-500/30 bg-purple-500/10 text-purple-300 text-xs font-semibold" style={{ fontFamily: "Outfit, sans-serif" }}>
+                {selectedFach.emoji} {selectedFach.label}
+              </span>
+            )}
           </div>
           <p className="text-slate-400 text-sm max-w-2xl">
-            Wähle die richtigen Strategien für deinen Lerntyp. Alle Methoden basieren auf wissenschaftlich belegten Erkenntnissen aus der Lernpsychologie.
+            Wähle die richtigen Strategien für deinen Lerntyp. Alle Methoden basieren auf wissenschaftlich belegten Erkenntnissen aus der Lernpsychologie. Dein Fortschritt wird automatisch gespeichert.
           </p>
         </div>
 
@@ -221,15 +230,15 @@ export default function Phase4Strategien() {
             <div className="p-5 space-y-3" style={{ background: "oklch(0.175 0.028 264.695)" }}>
               <h4 className="text-white font-semibold text-xs" style={{ fontFamily: "Outfit, sans-serif" }}>Schritt-für-Schritt:</h4>
               {active.steps.map((step, idx) => {
-                const stepId = `${active.id}-step-${idx}`;
-                const done = checkedSteps.has(stepId);
+                const stepId = `phase4-${active.id}-step-${idx}`;
+                const done = state.checkedItems.includes(stepId);
                 return (
                   <button
                     key={idx}
-                    onClick={() => toggleStep(stepId)}
+                    onClick={() => toggleCheckedItem(stepId)}
                     className="w-full flex items-start gap-3 text-left group"
                   >
-                    <div className={`w-5 h-5 rounded border flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors ${done ? `bg-${active.color}-500 border-${active.color}-500` : "border-white/20 group-hover:border-white/40"}`}>
+                    <div className={`w-5 h-5 rounded border flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors ${done ? "bg-emerald-500 border-emerald-500" : "border-white/20 group-hover:border-white/40"}`}>
                       {done && <CheckCircle size={12} className="text-white" />}
                     </div>
                     <span className={`text-xs leading-relaxed ${done ? "text-slate-500 line-through" : "text-slate-300"}`}>{step}</span>
@@ -251,6 +260,8 @@ export default function Phase4Strategien() {
                     {active.tool}
                   </a>
                 </div>
+                {/* Prompt */}
+                <div className="prompt-box text-xs whitespace-pre-line mt-2">{active.prompt}</div>
               </div>
             </div>
           </div>
@@ -275,11 +286,39 @@ export default function Phase4Strategien() {
               </div>
             </div>
 
-            {/* Lerntracker */}
+            {/* Lerntracker – jetzt mit globalem State (localStorage) */}
             <div className="border border-white/8 rounded-xl p-5" style={{ background: "oklch(0.208 0.028 264.364)" }}>
-              <h3 className="text-white font-bold text-sm mb-1" style={{ fontFamily: "Outfit, sans-serif" }}>Lerntracker</h3>
+              <div className="flex items-center justify-between mb-1">
+                <h3 className="text-white font-bold text-sm" style={{ fontFamily: "Outfit, sans-serif" }}>Lerntracker (21 Tage)</h3>
+                <span className="text-slate-500 text-xs">Wird gespeichert ✓</span>
+              </div>
               <p className="text-slate-400 text-xs mb-4">Markiere jeden Tag, an dem du gelernt hast.</p>
-              <LernTracker />
+              <div className="flex flex-wrap gap-2 mb-3">
+                {state.lerntracker.map((active, i) => (
+                  <button
+                    key={i}
+                    onClick={() => toggleLerntracker(i)}
+                    className={`
+                      w-8 h-8 rounded-lg border text-xs font-bold transition-all duration-200
+                      ${active
+                        ? "bg-emerald-500 border-emerald-500 text-white"
+                        : "border-white/15 text-slate-500 hover:border-white/30"
+                      }
+                    `}
+                    style={{ fontFamily: "Outfit, sans-serif" }}
+                  >
+                    {i + 1}
+                  </button>
+                ))}
+              </div>
+              <div className="flex items-center gap-4 text-xs">
+                <span className="text-slate-400">{state.lerntracker.filter(Boolean).length} von 21 Tagen</span>
+                {streak > 0 && (
+                  <span className="text-emerald-400 font-semibold" style={{ fontFamily: "Outfit, sans-serif" }}>
+                    🔥 {streak} Tage Streak
+                  </span>
+                )}
+              </div>
             </div>
 
             {/* Drei Grundbedürfnisse */}
@@ -292,9 +331,9 @@ export default function Phase4Strategien() {
                   { label: "Zugehörigkeit", q: "Fühle ich mich von meiner Lernpartnerin / meinem Lernpartner unterstützt?", color: "amber" },
                 ].map((item) => (
                   <div key={item.label} className="flex items-start gap-3">
-                    <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 bg-${item.color}-400`} />
+                    <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${item.color === "cyan" ? "bg-cyan-400" : item.color === "emerald" ? "bg-emerald-400" : "bg-amber-400"}`} />
                     <div>
-                      <p className={`text-xs font-semibold text-${item.color}-400`} style={{ fontFamily: "Outfit, sans-serif" }}>{item.label}</p>
+                      <p className={`text-xs font-semibold ${item.color === "cyan" ? "text-cyan-400" : item.color === "emerald" ? "text-emerald-400" : "text-amber-400"}`} style={{ fontFamily: "Outfit, sans-serif" }}>{item.label}</p>
                       <p className="text-slate-400 text-xs">{item.q}</p>
                     </div>
                   </div>
@@ -308,61 +347,26 @@ export default function Phase4Strategien() {
         <div className="flex items-center justify-between pt-4 border-t border-white/8">
           <Link href="/phase/3">
             <button className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-white/15 text-slate-400 hover:text-white hover:border-white/30 text-sm font-semibold transition-all" style={{ fontFamily: "Outfit, sans-serif" }}>
-              <ArrowLeft size={14} />
-              Phase 3
+              <ArrowLeft size={14} />Phase 3
             </button>
           </Link>
-          <Link href="/phase/5">
-            <button className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-purple-500 hover:bg-purple-400 text-white font-bold text-sm transition-all duration-200" style={{ fontFamily: "Outfit, sans-serif" }}>
-              Weiter zu Phase 5
-              <ArrowRight size={14} />
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => { completePhase(4); toast.success("Phase 4 als abgeschlossen markiert!"); }}
+              className={`inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border text-xs font-semibold transition-all ${isDone ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300" : "border-white/15 text-slate-400 hover:text-white hover:border-white/30"}`}
+              style={{ fontFamily: "Outfit, sans-serif" }}
+            >
+              <CheckCircle size={13} />
+              {isDone ? "Abgeschlossen ✓" : "Als erledigt markieren"}
             </button>
-          </Link>
+            <Link href="/phase/5">
+              <button className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-purple-500 hover:bg-purple-400 text-white font-bold text-sm transition-all duration-200" style={{ fontFamily: "Outfit, sans-serif" }}>
+                Weiter zu Phase 5<ArrowRight size={14} />
+              </button>
+            </Link>
+          </div>
         </div>
       </div>
     </Layout>
-  );
-}
-
-function LernTracker() {
-  const [days, setDays] = useState<boolean[]>(new Array(21).fill(false));
-  const toggle = (i: number) => setDays((prev) => prev.map((v, idx) => idx === i ? !v : v));
-  const streak = (() => {
-    let s = 0;
-    for (let i = days.length - 1; i >= 0; i--) {
-      if (days[i]) s++; else break;
-    }
-    return s;
-  })();
-
-  return (
-    <div>
-      <div className="flex flex-wrap gap-2 mb-3">
-        {days.map((active, i) => (
-          <button
-            key={i}
-            onClick={() => toggle(i)}
-            className={`
-              w-8 h-8 rounded-lg border text-xs font-bold transition-all duration-200
-              ${active
-                ? "bg-emerald-500 border-emerald-500 text-white"
-                : "border-white/15 text-slate-500 hover:border-white/30"
-              }
-            `}
-            style={{ fontFamily: "Outfit, sans-serif" }}
-          >
-            {i + 1}
-          </button>
-        ))}
-      </div>
-      <div className="flex items-center gap-4 text-xs">
-        <span className="text-slate-400">{days.filter(Boolean).length} von 21 Tagen</span>
-        {streak > 0 && (
-          <span className="text-emerald-400 font-semibold" style={{ fontFamily: "Outfit, sans-serif" }}>
-            🔥 {streak} Tage Streak
-          </span>
-        )}
-      </div>
-    </div>
   );
 }
