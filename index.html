@@ -1,0 +1,1770 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Prüfungsnavigator – Future Skills Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0f1117;
+      --bg2: #161b27;
+      --bg3: #1e2535;
+      --border: rgba(255,255,255,0.08);
+      --text: #e2e8f0;
+      --muted: #64748b;
+      --cyan: #22d3ee;
+      --cyan-dim: rgba(34,211,238,0.12);
+      --emerald: #34d399;
+      --emerald-dim: rgba(52,211,153,0.12);
+      --amber: #fbbf24;
+      --amber-dim: rgba(251,191,36,0.12);
+      --purple: #a78bfa;
+      --purple-dim: rgba(167,139,250,0.12);
+      --rose: #fb7185;
+      --rose-dim: rgba(251,113,133,0.12);
+      --teal: #2dd4bf;
+      --teal-dim: rgba(45,212,191,0.12);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: 'Nunito', sans-serif; min-height: 100vh; }
+    h1,h2,h3,h4,h5 { font-family: 'Outfit', sans-serif; }
+
+    /* NAV */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(15,17,23,0.9); backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 1.5rem; height: 56px;
+    }
+    .nav-logo { display: flex; align-items: center; gap: 0.6rem; font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 0.95rem; color: #fff; }
+    .nav-logo-icon { width: 28px; height: 28px; border-radius: 8px; background: var(--cyan-dim); border: 1px solid rgba(34,211,238,0.3); display: flex; align-items: center; justify-content: center; font-size: 0.85rem; }
+    .nav-links { display: flex; gap: 0.5rem; }
+    .nav-btn { padding: 0.35rem 1rem; border-radius: 8px; font-family: 'Outfit', sans-serif; font-size: 0.8rem; font-weight: 600; cursor: pointer; border: none; transition: all 0.2s; }
+    .nav-btn-ghost { background: transparent; color: var(--muted); }
+    .nav-btn-ghost:hover { color: #fff; }
+    .nav-btn-primary { background: var(--cyan-dim); border: 1px solid rgba(34,211,238,0.3); color: var(--cyan); }
+    .nav-btn-primary:hover { background: rgba(34,211,238,0.2); }
+
+    /* PAGES */
+    .page { display: none; padding-top: 56px; min-height: 100vh; }
+    .page.active { display: block; }
+
+    /* LANDING */
+    .hero { padding: 5rem 1.5rem 4rem; text-align: center; position: relative; overflow: hidden; }
+    .hero::before {
+      content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+      width: 700px; height: 400px; border-radius: 50%;
+      background: radial-gradient(ellipse, rgba(34,211,238,0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .badge { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.3rem 0.9rem; border-radius: 999px; border: 1px solid rgba(34,211,238,0.3); background: var(--cyan-dim); color: var(--cyan); font-size: 0.75rem; font-weight: 700; font-family: 'Outfit', sans-serif; margin-bottom: 1.5rem; }
+    .hero h1 { font-size: clamp(2.5rem, 7vw, 4.5rem); font-weight: 900; color: #fff; line-height: 1.1; margin-bottom: 1.2rem; }
+    .hero h1 span { background: linear-gradient(135deg, var(--cyan), var(--emerald)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .hero p { color: var(--muted); font-size: 1.1rem; max-width: 600px; margin: 0 auto 2.5rem; line-height: 1.7; }
+    .btn-row { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
+    .btn-main { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.85rem 2rem; border-radius: 12px; font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 0.95rem; cursor: pointer; border: none; background: linear-gradient(135deg, var(--cyan), var(--emerald)); color: #0f1117; transition: all 0.2s; }
+    .btn-main:hover { transform: scale(1.04); box-shadow: 0 8px 30px rgba(34,211,238,0.3); }
+    .btn-outline { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.85rem 2rem; border-radius: 12px; font-family: 'Outfit', sans-serif; font-weight: 600; font-size: 0.95rem; cursor: pointer; background: transparent; border: 1px solid rgba(255,255,255,0.15); color: #cbd5e1; transition: all 0.2s; }
+    .btn-outline:hover { border-color: rgba(255,255,255,0.3); color: #fff; }
+
+    /* SECTIONS */
+    section { padding: 4rem 1.5rem; }
+    .section-alt { background: var(--bg2); }
+    .section-label { font-family: 'Outfit', sans-serif; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.6rem; }
+    .section-title { font-size: clamp(1.8rem, 4vw, 2.5rem); font-weight: 900; color: #fff; margin-bottom: 0.5rem; }
+    .section-sub { color: var(--muted); font-size: 1rem; max-width: 500px; margin: 0 auto; }
+    .section-head { text-align: center; margin-bottom: 3rem; }
+
+    /* GRID */
+    .grid-5 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; max-width: 1100px; margin: 0 auto; }
+    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; max-width: 1100px; margin: 0 auto; }
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; max-width: 1100px; margin: 0 auto; }
+
+    /* CARDS */
+    .card { background: var(--bg3); border-radius: 16px; padding: 1.5rem; border: 1px solid var(--border); transition: all 0.2s; }
+    .card:hover { transform: translateY(-2px); }
+    .card-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; margin-bottom: 1rem; border: 1px solid var(--border); }
+    .card h3 { font-size: 1rem; font-weight: 700; color: #fff; margin-bottom: 0.4rem; }
+    .card p { font-size: 0.85rem; color: var(--muted); line-height: 1.6; }
+    .card .phase-num { font-size: 0.7rem; font-weight: 700; font-family: 'Outfit', sans-serif; margin-bottom: 0.3rem; }
+    .card .time-badge { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.72rem; font-weight: 600; font-family: 'Outfit', sans-serif; margin-top: 0.75rem; }
+
+    /* COLOR VARIANTS */
+    .c-cyan  { --c: var(--cyan);    --cd: var(--cyan-dim);    --cb: rgba(34,211,238,0.3); }
+    .c-emerald { --c: var(--emerald); --cd: var(--emerald-dim); --cb: rgba(52,211,153,0.3); }
+    .c-amber { --c: var(--amber);   --cd: var(--amber-dim);   --cb: rgba(251,191,36,0.3); }
+    .c-purple { --c: var(--purple); --cd: var(--purple-dim);  --cb: rgba(167,139,250,0.3); }
+    .c-rose  { --c: var(--rose);    --cd: var(--rose-dim);    --cb: rgba(251,113,133,0.3); }
+    .c-teal  { --c: var(--teal);    --cd: var(--teal-dim);    --cb: rgba(45,212,191,0.3); }
+    .colored { border-color: var(--cb) !important; background: color-mix(in srgb, var(--bg3), var(--cd) 30%) !important; }
+    .colored .card-icon { background: var(--cd); border-color: var(--cb); }
+    .colored .phase-num, .colored .time-badge { color: var(--c); }
+    .colored:hover { box-shadow: 0 8px 24px color-mix(in srgb, var(--c), transparent 80%); }
+
+    /* TOOL CARD */
+    .tool-card { display: flex; align-items: center; gap: 1rem; background: var(--bg3); border-radius: 12px; padding: 1rem 1.25rem; border: 1px solid var(--border); text-decoration: none; color: inherit; transition: all 0.2s; }
+    .tool-card:hover { transform: translateY(-2px); }
+    .tool-icon { width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 900; font-family: 'Outfit', sans-serif; flex-shrink: 0; border: 1px solid var(--border); }
+    .tool-info { flex: 1; min-width: 0; }
+    .tool-name { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 0.9rem; color: #fff; }
+    .tool-tag { font-size: 0.65rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 4px; margin-left: 0.4rem; vertical-align: middle; }
+    .tool-desc { font-size: 0.78rem; color: var(--muted); margin-top: 0.15rem; }
+
+    /* DASHBOARD */
+    .dashboard { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
+    .dash-header { margin-bottom: 2rem; }
+    .dash-header h2 { font-size: 2rem; font-weight: 900; color: #fff; }
+    .dash-header p { color: var(--muted); margin-top: 0.3rem; }
+
+    /* PROGRESS */
+    .progress-wrap { background: var(--bg2); border-radius: 16px; padding: 1.5rem; border: 1px solid var(--border); margin-bottom: 2rem; }
+    .progress-title { font-family: 'Outfit', sans-serif; font-weight: 700; color: #fff; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; }
+    .progress-bar-bg { background: rgba(255,255,255,0.06); border-radius: 999px; height: 8px; overflow: hidden; margin-bottom: 1rem; }
+    .progress-bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--cyan), var(--emerald)); transition: width 0.5s ease; }
+    .progress-phases { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .phase-pill { display: flex; align-items: center; gap: 0.4rem; padding: 0.35rem 0.75rem; border-radius: 8px; font-size: 0.75rem; font-weight: 600; font-family: 'Outfit', sans-serif; cursor: pointer; border: 1px solid var(--border); background: var(--bg3); color: var(--muted); transition: all 0.2s; }
+    .phase-pill.done { background: var(--emerald-dim); border-color: rgba(52,211,153,0.3); color: var(--emerald); }
+    .phase-pill:hover { border-color: rgba(255,255,255,0.2); color: #fff; }
+
+    /* FACH SELECTOR */
+    .fach-wrap { background: var(--bg2); border-radius: 16px; padding: 1.5rem; border: 1px solid var(--border); margin-bottom: 2rem; }
+    .fach-wrap h3 { font-family: 'Outfit', sans-serif; font-weight: 700; color: #fff; margin-bottom: 1rem; }
+    .fach-row { display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: flex-end; }
+    .fach-group { display: flex; flex-direction: column; gap: 0.4rem; flex: 1; min-width: 180px; }
+    .fach-group label { font-size: 0.75rem; font-weight: 600; color: var(--muted); font-family: 'Outfit', sans-serif; }
+    .fach-select, .fach-input { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; color: #fff; padding: 0.55rem 0.85rem; font-family: 'Nunito', sans-serif; font-size: 0.875rem; outline: none; width: 100%; }
+    .fach-select:focus, .fach-input:focus { border-color: rgba(34,211,238,0.4); }
+
+    /* PHASE PAGES */
+    .phase-page { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+    .phase-header { margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
+    .phase-header .phase-label { font-size: 0.75rem; font-weight: 700; font-family: 'Outfit', sans-serif; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.5rem; }
+    .phase-header h2 { font-size: 1.8rem; font-weight: 900; color: #fff; margin-bottom: 0.4rem; }
+    .phase-header p { color: var(--muted); font-size: 0.95rem; line-height: 1.6; }
+    .phase-header .time-info { display: inline-flex; align-items: center; gap: 0.4rem; margin-top: 0.75rem; font-size: 0.8rem; font-weight: 600; font-family: 'Outfit', sans-serif; padding: 0.3rem 0.75rem; border-radius: 8px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--muted); }
+
+    /* BLOCKS */
+    .block { background: var(--bg2); border-radius: 14px; padding: 1.5rem; border: 1px solid var(--border); margin-bottom: 1.25rem; }
+    .block h4 { font-family: 'Outfit', sans-serif; font-weight: 700; color: #fff; font-size: 1rem; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem; }
+    .block h4 .step-num { width: 22px; height: 22px; border-radius: 6px; background: var(--cyan-dim); border: 1px solid rgba(34,211,238,0.3); color: var(--cyan); font-size: 0.7rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .block p, .block li { font-size: 0.875rem; color: var(--muted); line-height: 1.7; }
+    .block ul, .block ol { padding-left: 1.25rem; }
+    .block li { margin-bottom: 0.35rem; }
+
+    /* PROMPT BOX */
+    .prompt-box { background: var(--bg); border: 1px solid rgba(34,211,238,0.2); border-radius: 10px; padding: 1rem 1.25rem; margin: 0.75rem 0; position: relative; }
+    .prompt-box pre { font-family: 'Nunito', sans-serif; font-size: 0.82rem; color: #94a3b8; line-height: 1.6; white-space: pre-wrap; word-break: break-word; }
+    .copy-btn { position: absolute; top: 0.6rem; right: 0.6rem; background: var(--cyan-dim); border: 1px solid rgba(34,211,238,0.3); color: var(--cyan); font-size: 0.7rem; font-weight: 700; font-family: 'Outfit', sans-serif; padding: 0.25rem 0.6rem; border-radius: 6px; cursor: pointer; transition: all 0.2s; }
+    .copy-btn:hover { background: rgba(34,211,238,0.2); }
+    .copy-btn.copied { background: var(--emerald-dim); border-color: rgba(52,211,153,0.3); color: var(--emerald); }
+
+    /* UPLOAD AREA */
+    .upload-area { border: 2px dashed rgba(34,211,238,0.25); border-radius: 14px; padding: 2.5rem; text-align: center; cursor: pointer; transition: all 0.2s; background: rgba(34,211,238,0.03); }
+    .upload-area:hover, .upload-area.drag { border-color: rgba(34,211,238,0.5); background: var(--cyan-dim); }
+    .upload-area .upload-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+    .upload-area h4 { font-family: 'Outfit', sans-serif; font-weight: 700; color: #fff; margin-bottom: 0.4rem; }
+    .upload-area p { color: var(--muted); font-size: 0.85rem; }
+    .upload-area input { display: none; }
+    .file-list { margin-top: 1rem; display: flex; flex-direction: column; gap: 0.5rem; }
+    .file-item { display: flex; align-items: center; gap: 0.75rem; background: var(--bg3); border-radius: 8px; padding: 0.6rem 0.9rem; border: 1px solid var(--border); }
+    .file-item .file-name { flex: 1; font-size: 0.82rem; color: #fff; font-weight: 600; }
+    .file-item .file-size { font-size: 0.75rem; color: var(--muted); }
+    .file-item .file-del { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 1rem; padding: 0; line-height: 1; }
+    .file-item .file-del:hover { color: var(--rose); }
+
+    /* QUIZ */
+    .quiz-question { background: var(--bg2); border-radius: 14px; padding: 1.5rem; border: 1px solid var(--border); margin-bottom: 1rem; }
+    .quiz-question h4 { font-family: 'Outfit', sans-serif; font-weight: 700; color: #fff; margin-bottom: 1rem; font-size: 0.95rem; }
+    .quiz-options { display: flex; flex-direction: column; gap: 0.5rem; }
+    .quiz-option { display: flex; align-items: center; gap: 0.75rem; padding: 0.7rem 1rem; border-radius: 10px; border: 1px solid var(--border); background: var(--bg3); cursor: pointer; transition: all 0.2s; font-size: 0.875rem; color: var(--text); }
+    .quiz-option:hover { border-color: rgba(34,211,238,0.3); background: var(--cyan-dim); }
+    .quiz-option.selected { border-color: rgba(34,211,238,0.5); background: var(--cyan-dim); color: var(--cyan); }
+    .quiz-option.correct { border-color: rgba(52,211,153,0.5); background: var(--emerald-dim); color: var(--emerald); }
+    .quiz-option.wrong { border-color: rgba(251,113,133,0.5); background: var(--rose-dim); color: var(--rose); }
+    .quiz-option .opt-letter { width: 24px; height: 24px; border-radius: 6px; background: rgba(255,255,255,0.06); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 0.72rem; font-weight: 700; font-family: 'Outfit', sans-serif; flex-shrink: 0; }
+    .quiz-result { background: var(--bg2); border-radius: 14px; padding: 1.5rem; border: 1px solid rgba(52,211,153,0.3); text-align: center; }
+    .quiz-result h3 { font-family: 'Outfit', sans-serif; font-weight: 900; font-size: 1.5rem; color: #fff; margin-bottom: 0.5rem; }
+    .quiz-result p { color: var(--muted); }
+    .score-big { font-size: 3rem; font-weight: 900; font-family: 'Outfit', sans-serif; color: var(--emerald); }
+
+    /* JOURNAL */
+    .journal-area { width: 100%; min-height: 120px; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 0.85rem 1rem; color: var(--text); font-family: 'Nunito', sans-serif; font-size: 0.875rem; line-height: 1.6; resize: vertical; outline: none; transition: border-color 0.2s; }
+    .journal-area:focus { border-color: rgba(34,211,238,0.4); }
+
+    /* TRACKER */
+    .tracker-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.4rem; }
+    .tracker-day { aspect-ratio: 1; border-radius: 6px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 700; color: var(--muted); font-family: 'Outfit', sans-serif; }
+    .tracker-day.done { background: var(--emerald-dim); border-color: rgba(52,211,153,0.4); color: var(--emerald); }
+    .tracker-day:hover { border-color: rgba(255,255,255,0.2); }
+
+    /* STRATEGY CARD */
+    .strategy-card { background: var(--bg2); border-radius: 14px; padding: 1.25rem; border: 1px solid var(--border); }
+    .strategy-card h4 { font-family: 'Outfit', sans-serif; font-weight: 700; color: #fff; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
+    .strategy-card p { font-size: 0.85rem; color: var(--muted); line-height: 1.6; margin-bottom: 0.75rem; }
+    .strategy-badge { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.7rem; font-weight: 700; font-family: 'Outfit', sans-serif; padding: 0.2rem 0.6rem; border-radius: 6px; }
+
+    /* LEHRPERSON */
+    .lehrer-block { background: var(--bg2); border-radius: 14px; padding: 1.5rem; border: 1px solid var(--border); margin-bottom: 1.25rem; }
+    .lehrer-block h4 { font-family: 'Outfit', sans-serif; font-weight: 700; color: #fff; margin-bottom: 1rem; }
+    .lehrer-tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+    .lehrer-tab { padding: 0.4rem 0.9rem; border-radius: 8px; font-size: 0.78rem; font-weight: 600; font-family: 'Outfit', sans-serif; cursor: pointer; border: 1px solid var(--border); background: var(--bg3); color: var(--muted); transition: all 0.2s; }
+    .lehrer-tab.active { background: var(--cyan-dim); border-color: rgba(34,211,238,0.3); color: var(--cyan); }
+
+    /* POMODORO */
+    .pomodoro { background: var(--bg2); border-radius: 14px; padding: 1.25rem; border: 1px solid var(--border); text-align: center; }
+    .pomodoro h4 { font-family: 'Outfit', sans-serif; font-weight: 700; color: #fff; margin-bottom: 0.75rem; }
+    .pomo-display { font-size: 2.5rem; font-weight: 900; font-family: 'Outfit', sans-serif; color: var(--cyan); margin-bottom: 0.75rem; letter-spacing: 0.05em; }
+    .pomo-label { font-size: 0.75rem; color: var(--muted); font-family: 'Outfit', sans-serif; font-weight: 600; margin-bottom: 1rem; }
+    .pomo-btns { display: flex; gap: 0.5rem; justify-content: center; }
+    .pomo-btn { padding: 0.45rem 1rem; border-radius: 8px; font-family: 'Outfit', sans-serif; font-size: 0.8rem; font-weight: 700; cursor: pointer; border: none; transition: all 0.2s; }
+    .pomo-btn-start { background: var(--cyan-dim); border: 1px solid rgba(34,211,238,0.3); color: var(--cyan); }
+    .pomo-btn-start:hover { background: rgba(34,211,238,0.2); }
+    .pomo-btn-reset { background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--muted); }
+    .pomo-btn-reset:hover { color: #fff; }
+
+    /* SIDEBAR LAYOUT */
+    .app-layout { display: flex; min-height: calc(100vh - 56px); }
+    .sidebar { width: 240px; flex-shrink: 0; background: var(--bg2); border-right: 1px solid var(--border); padding: 1.5rem 0; position: sticky; top: 56px; height: calc(100vh - 56px); overflow-y: auto; }
+    .sidebar-section { padding: 0 0.75rem; margin-bottom: 1.5rem; }
+    .sidebar-label { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); padding: 0 0.75rem; margin-bottom: 0.5rem; font-family: 'Outfit', sans-serif; }
+    .sidebar-link { display: flex; align-items: center; gap: 0.6rem; padding: 0.55rem 0.75rem; border-radius: 8px; font-size: 0.83rem; font-weight: 600; color: var(--muted); cursor: pointer; transition: all 0.2s; border: none; background: none; width: 100%; text-align: left; font-family: 'Nunito', sans-serif; }
+    .sidebar-link:hover { background: rgba(255,255,255,0.05); color: #fff; }
+    .sidebar-link.active { background: var(--cyan-dim); color: var(--cyan); }
+    .sidebar-link .link-icon { font-size: 1rem; width: 20px; text-align: center; }
+    .sidebar-link .phase-done { margin-left: auto; font-size: 0.7rem; color: var(--emerald); }
+    .main-content { flex: 1; min-width: 0; overflow-y: auto; }
+
+    /* FOOTER */
+    footer { background: var(--bg2); border-top: 1px solid var(--border); padding: 1.5rem; text-align: center; }
+    footer p { color: var(--muted); font-size: 0.8rem; }
+
+    /* UTIL */
+    .tag { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.7rem; font-weight: 700; font-family: 'Outfit', sans-serif; padding: 0.2rem 0.6rem; border-radius: 6px; }
+    .tag-cyan { background: var(--cyan-dim); color: var(--cyan); border: 1px solid rgba(34,211,238,0.25); }
+    .tag-emerald { background: var(--emerald-dim); color: var(--emerald); border: 1px solid rgba(52,211,153,0.25); }
+    .tag-amber { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(251,191,36,0.25); }
+    .tag-purple { background: var(--purple-dim); color: var(--purple); border: 1px solid rgba(167,139,250,0.25); }
+    .tag-rose { background: var(--rose-dim); color: var(--rose); border: 1px solid rgba(251,113,133,0.25); }
+    .divider { height: 1px; background: var(--border); margin: 1.25rem 0; }
+    .check-row { display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.6rem 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .check-row:last-child { border-bottom: none; }
+    .check-row input[type=checkbox] { margin-top: 0.15rem; accent-color: var(--cyan); width: 16px; height: 16px; flex-shrink: 0; cursor: pointer; }
+    .check-row label { font-size: 0.875rem; color: var(--text); cursor: pointer; line-height: 1.5; }
+    .check-row label.checked { color: var(--muted); text-decoration: line-through; }
+    .alert { border-radius: 10px; padding: 0.85rem 1rem; font-size: 0.85rem; margin-bottom: 1rem; border: 1px solid; }
+    .alert-cyan { background: var(--cyan-dim); border-color: rgba(34,211,238,0.3); color: #7dd3fc; }
+    .alert-amber { background: var(--amber-dim); border-color: rgba(251,191,36,0.3); color: #fde68a; }
+    .btn-sm { padding: 0.45rem 1rem; border-radius: 8px; font-family: 'Outfit', sans-serif; font-size: 0.8rem; font-weight: 700; cursor: pointer; border: none; transition: all 0.2s; }
+    .btn-cyan { background: var(--cyan-dim); border: 1px solid rgba(34,211,238,0.3); color: var(--cyan); }
+    .btn-cyan:hover { background: rgba(34,211,238,0.2); }
+    .btn-emerald { background: var(--emerald-dim); border: 1px solid rgba(52,211,153,0.3); color: var(--emerald); }
+    .btn-emerald:hover { background: rgba(52,211,153,0.2); }
+    .btn-ghost { background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--muted); }
+    .btn-ghost:hover { color: #fff; }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .two-col { grid-template-columns: 1fr; }
+      .grid-5 { grid-template-columns: repeat(2, 1fr); }
+    }
+    .hidden { display: none !important; }
+    .confetti-overlay { position: fixed; inset: 0; pointer-events: none; z-index: 9999; }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <div class="nav-logo-icon">🚀</div>
+    Prüfungsnavigator
+    <span style="color:var(--muted);font-size:0.75rem;font-weight:400">· Future Skills Lab</span>
+  </div>
+  <div class="nav-links">
+    <button class="nav-btn nav-btn-ghost" onclick="showPage('lehrer')">Lehrperson</button>
+    <button class="nav-btn nav-btn-primary" onclick="showPage('dashboard')">⚡ Starten</button>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════
+     LANDING PAGE
+═══════════════════════════════════════════════════ -->
+<div id="page-landing" class="page active">
+  <div class="hero">
+    <div class="badge">🚀 FMS Pädagogisches Profil · Klasse 17+</div>
+    <h1>Dein KI-Autopilot<br><span>für jede Prüfung</span></h1>
+    <p>Lade deine Unterlagen hoch, lass die KI den Stoff strukturieren, generiere Probeprüfungen und reflektiere dein Lernverhalten – alles kostenlos, in 180–240 Minuten.</p>
+    <div class="btn-row">
+      <button class="btn-main" onclick="showPage('dashboard')">🚀 Jetzt starten →</button>
+      <button class="btn-outline" onclick="showPage('lehrer')">🎓 Lehrperson-Ansicht</button>
+    </div>
+  </div>
+
+  <!-- 5 Phasen -->
+  <section>
+    <div class="section-head">
+      <div class="section-label">Der Weg zur Prüfung</div>
+      <h2 class="section-title">5 Phasen. Ein Ziel.</h2>
+    </div>
+    <div class="grid-5">
+      <div class="card colored c-cyan" onclick="showPage('phase1')" style="cursor:pointer">
+        <div class="card-icon">📤</div>
+        <div class="phase-num">Phase 1</div>
+        <h3>Unterlagen hochladen</h3>
+        <p>Unterrichtsunterlagen & Modellprüfungen einlesen</p>
+        <div class="time-badge">⏱ 20–30 Min.</div>
+      </div>
+      <div class="card colored c-emerald" onclick="showPage('phase2')" style="cursor:pointer">
+        <div class="card-icon">🧠</div>
+        <div class="phase-num">Phase 2</div>
+        <h3>KI-Analyse</h3>
+        <p>Stoff strukturieren mit NotebookLM, ChatGPT & Fobizz</p>
+        <div class="time-badge">⏱ 40–60 Min.</div>
+      </div>
+      <div class="card colored c-amber" onclick="showPage('phase3')" style="cursor:pointer">
+        <div class="card-icon">🧪</div>
+        <div class="phase-num">Phase 3</div>
+        <h3>Probeprüfung</h3>
+        <p>Lernstand ermitteln & Defizite sichtbar machen</p>
+        <div class="time-badge">⏱ 30–40 Min.</div>
+      </div>
+      <div class="card colored c-purple" onclick="showPage('phase4')" style="cursor:pointer">
+        <div class="card-icon">📚</div>
+        <div class="phase-num">Phase 4</div>
+        <h3>Lernstrategien</h3>
+        <p>Feynman, Retrieval, Spacing & mehr anwenden</p>
+        <div class="time-badge">⏱ 40–50 Min.</div>
+      </div>
+      <div class="card colored c-rose" onclick="showPage('phase5')" style="cursor:pointer">
+        <div class="card-icon">✨</div>
+        <div class="phase-num">Phase 5</div>
+        <h3>Reflexion</h3>
+        <p>Lernjournal, KI-Feedback & Peer-Reflexion</p>
+        <div class="time-badge">⏱ 30–40 Min.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="section-alt">
+    <div class="section-head">
+      <div class="section-label">Was dich erwartet</div>
+      <h2 class="section-title">Alles, was du brauchst</h2>
+    </div>
+    <div class="grid-3">
+      <div class="card"><div class="card-icon">⚡</div><h3>Autopilot-Funktionen</h3><p>Schritt-für-Schritt-Anleitungen führen dich automatisch durch alle Phasen der Prüfungsvorbereitung.</p></div>
+      <div class="card"><div class="card-icon">👥</div><h3>Zwei-Personen-Modus</h3><p>Lerne gemeinsam mit deiner Lernpartnerin – mit getrennten Journalen und Peer-Feedback.</p></div>
+      <div class="card"><div class="card-icon">⏱</div><h3>180–240 Minuten</h3><p>Eine vollständige Prüfungsvorbereitung in einer strukturierten Lernsession.</p></div>
+      <div class="card"><div class="card-icon">🛡</div><h3>100% kostenlos</h3><p>Alle integrierten Tools sind gratis. Deine Daten bleiben lokal in deinem Browser.</p></div>
+      <div class="card"><div class="card-icon">🎓</div><h3>FMS Pädagogik</h3><p>Speziell für das pädagogische Profil der Fachmittelschule – Fokus auf überfachliche Kompetenzen.</p></div>
+      <div class="card"><div class="card-icon">⭐</div><h3>7 Lernstrategien</h3><p>Feynman, Retrieval Practice, Spacing, Interleaving, Elaboration, Mindmapping & Wenn-Dann-Planung.</p></div>
+    </div>
+  </section>
+
+  <!-- Tools -->
+  <section>
+    <div class="section-head">
+      <div class="section-label">Integrierte Tools</div>
+      <h2 class="section-title">Alle gratis. Kein Abo.</h2>
+    </div>
+    <div class="grid-2" style="max-width:900px;margin:0 auto">
+      <a class="tool-card colored c-cyan" href="https://notebooklm.google.com" target="_blank">
+        <div class="tool-icon" style="background:var(--cyan-dim);border-color:rgba(34,211,238,0.3);color:var(--cyan)">NB</div>
+        <div class="tool-info"><div class="tool-name">NotebookLM <span class="tool-tag tag-cyan">Google</span></div><div class="tool-desc">KI-Notizbuch für deine Unterlagen</div></div>
+        <span style="color:var(--muted)">↗</span>
+      </a>
+      <a class="tool-card colored c-emerald" href="https://chat.openai.com" target="_blank">
+        <div class="tool-icon" style="background:var(--emerald-dim);border-color:rgba(52,211,153,0.3);color:var(--emerald)">GP</div>
+        <div class="tool-info"><div class="tool-name">ChatGPT <span class="tool-tag tag-emerald">OpenAI</span></div><div class="tool-desc">Probeprüfungen & Erklärungen generieren</div></div>
+        <span style="color:var(--muted)">↗</span>
+      </a>
+      <a class="tool-card colored c-amber" href="https://app.fobizz.com" target="_blank">
+        <div class="tool-icon" style="background:var(--amber-dim);border-color:rgba(251,191,36,0.3);color:var(--amber)">FO</div>
+        <div class="tool-info"><div class="tool-name">Fobizz <span class="tool-tag tag-amber">Schul-KI</span></div><div class="tool-desc">DSGVO-konforme KI für Schulen</div></div>
+        <span style="color:var(--muted)">↗</span>
+      </a>
+      <a class="tool-card colored c-purple" href="https://cryptpad.fr" target="_blank">
+        <div class="tool-icon" style="background:var(--purple-dim);border-color:rgba(167,139,250,0.3);color:var(--purple)">CP</div>
+        <div class="tool-info"><div class="tool-name">CryptPad <span class="tool-tag tag-purple">Kollaboration</span></div><div class="tool-desc">Verschlüsseltes Teilen von Dokumenten</div></div>
+        <span style="color:var(--muted)">↗</span>
+      </a>
+      <a class="tool-card colored c-teal" href="https://excalidraw.com" target="_blank">
+        <div class="tool-icon" style="background:var(--teal-dim);border-color:rgba(45,212,191,0.3);color:var(--teal)">EX</div>
+        <div class="tool-info"><div class="tool-name">Excalidraw <span class="tool-tag" style="background:var(--teal-dim);color:var(--teal);border:1px solid rgba(45,212,191,0.25)">Mindmaps</span></div><div class="tool-desc">Kollaborative Mindmaps & Skizzen</div></div>
+        <span style="color:var(--muted)">↗</span>
+      </a>
+      <a class="tool-card colored c-rose" href="https://quizlet.com" target="_blank">
+        <div class="tool-icon" style="background:var(--rose-dim);border-color:rgba(251,113,133,0.3);color:var(--rose)">QZ</div>
+        <div class="tool-info"><div class="tool-name">Quizlet <span class="tool-tag tag-rose">Karteikarten</span></div><div class="tool-desc">Lernkarten & Übungstests</div></div>
+        <span style="color:var(--muted)">↗</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="section-alt" style="text-align:center">
+    <div style="max-width:600px;margin:0 auto">
+      <div style="font-size:3rem;margin-bottom:1rem">🚀</div>
+      <h2 class="section-title">Bereit für die Prüfung?</h2>
+      <p style="color:var(--muted);margin:1rem 0 2rem;line-height:1.7">Starte jetzt mit Phase 1 – lade deine Unterlagen hoch und lass den Prüfungsnavigator die Arbeit übernehmen.</p>
+      <button class="btn-main" onclick="showPage('dashboard')">🚀 Prüfungsnavigator starten →</button>
+      <div style="display:flex;gap:1.5rem;justify-content:center;margin-top:1.5rem;color:var(--muted);font-size:0.8rem">
+        <span>✅ Kostenlos</span><span>✅ Kein Abo</span><span>✅ Daten bleiben lokal</span>
+      </div>
+    </div>
+  </section>
+
+  <footer><p>Prüfungsnavigator · Future Skills Lab · FMS Pädagogisches Profil</p></footer>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     DASHBOARD
+═══════════════════════════════════════════════════ -->
+<div id="page-dashboard" class="page">
+  <div class="app-layout">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-label">Navigation</div>
+      <div class="sidebar-section">
+        <button class="sidebar-link active" onclick="showPage('dashboard')" id="nav-dashboard"><span class="link-icon">🏠</span> Dashboard</button>
+        <button class="sidebar-link" onclick="showPage('phase1')" id="nav-phase1"><span class="link-icon">📤</span> Phase 1 – Hochladen <span class="phase-done hidden" id="done-1">✓</span></button>
+        <button class="sidebar-link" onclick="showPage('phase2')" id="nav-phase2"><span class="link-icon">🧠</span> Phase 2 – KI-Analyse <span class="phase-done hidden" id="done-2">✓</span></button>
+        <button class="sidebar-link" onclick="showPage('phase3')" id="nav-phase3"><span class="link-icon">🧪</span> Phase 3 – Probeprüfung <span class="phase-done hidden" id="done-3">✓</span></button>
+        <button class="sidebar-link" onclick="showPage('phase4')" id="nav-phase4"><span class="link-icon">📚</span> Phase 4 – Strategien <span class="phase-done hidden" id="done-4">✓</span></button>
+        <button class="sidebar-link" onclick="showPage('phase5')" id="nav-phase5"><span class="link-icon">✨</span> Phase 5 – Reflexion <span class="phase-done hidden" id="done-5">✓</span></button>
+      </div>
+      <div class="sidebar-label">Extras</div>
+      <div class="sidebar-section">
+        <button class="sidebar-link" onclick="showPage('lehrer')"><span class="link-icon">🎓</span> Lehrperson</button>
+        <button class="sidebar-link" onclick="showPage('print')"><span class="link-icon">🖨</span> Druckansicht</button>
+        <button class="sidebar-link" onclick="showPage('landing')"><span class="link-icon">🏠</span> Startseite</button>
+      </div>
+      <!-- Pomodoro -->
+      <div style="padding:0 0.75rem;margin-top:1rem">
+        <div class="pomodoro">
+          <h4>🍅 Pomodoro</h4>
+          <div class="pomo-display" id="pomo-display">25:00</div>
+          <div class="pomo-label" id="pomo-label">Fokus-Phase</div>
+          <div class="pomo-btns">
+            <button class="pomo-btn pomo-btn-start" id="pomo-start" onclick="pomodoroToggle()">▶ Start</button>
+            <button class="pomo-btn pomo-btn-reset" onclick="pomodoroReset()">↺</button>
+          </div>
+        </div>
+      </div>
+    </aside>
+    <main class="main-content">
+      <div class="dashboard">
+        <div class="dash-header">
+          <h2>🚀 Prüfungsnavigator</h2>
+          <p>Dein KI-gestützter Autopilot für die Prüfungsvorbereitung</p>
+        </div>
+
+        <!-- Fach-Selektor -->
+        <div class="fach-wrap">
+          <h3>📋 Prüfungskonfiguration</h3>
+          <div class="fach-row">
+            <div class="fach-group">
+              <label>Prüfungsfach</label>
+              <select class="fach-select" id="fach-select" onchange="saveFach()">
+                <option value="">– Fach wählen –</option>
+                <option>Deutsch</option><option>Französisch</option><option>Englisch</option>
+                <option>Mathematik</option><option>Biologie</option><option>Chemie</option>
+                <option>Physik</option><option>Geschichte</option><option>Geografie</option>
+                <option>Psychologie/Pädagogik</option><option>Philosophie</option>
+                <option>Medien/Kommunikation</option><option>Allgemein</option>
+              </select>
+            </div>
+            <div class="fach-group">
+              <label>Prüfungsthema</label>
+              <input class="fach-input" id="fach-thema" placeholder="z.B. Zellbiologie, Romantik..." oninput="saveFach()" />
+            </div>
+            <div class="fach-group">
+              <label>Prüfungsdatum</label>
+              <input class="fach-input" type="date" id="fach-datum" onchange="saveFach()" />
+            </div>
+            <div class="fach-group">
+              <label>Lernperson A</label>
+              <input class="fach-input" id="person-a" placeholder="Name Person A" oninput="saveFach()" />
+            </div>
+            <div class="fach-group">
+              <label>Lernperson B</label>
+              <input class="fach-input" id="person-b" placeholder="Name Person B" oninput="saveFach()" />
+            </div>
+          </div>
+          <div id="countdown-display" style="margin-top:0.75rem;font-size:0.85rem;color:var(--muted)"></div>
+        </div>
+
+        <!-- Fortschritt -->
+        <div class="progress-wrap">
+          <div class="progress-title">
+            <span>📊 Lernfortschritt</span>
+            <span id="progress-pct" style="color:var(--cyan);font-family:'Outfit',sans-serif;font-weight:700">0%</span>
+          </div>
+          <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-fill" style="width:0%"></div></div>
+          <div class="progress-phases">
+            <div class="phase-pill" id="pill-1" onclick="togglePhase(1)">📤 Phase 1</div>
+            <div class="phase-pill" id="pill-2" onclick="togglePhase(2)">🧠 Phase 2</div>
+            <div class="phase-pill" id="pill-3" onclick="togglePhase(3)">🧪 Phase 3</div>
+            <div class="phase-pill" id="pill-4" onclick="togglePhase(4)">📚 Phase 4</div>
+            <div class="phase-pill" id="pill-5" onclick="togglePhase(5)">✨ Phase 5</div>
+          </div>
+        </div>
+
+        <!-- Phasen-Karten -->
+        <div class="grid-5" style="margin-bottom:2rem">
+          <div class="card colored c-cyan" onclick="showPage('phase1')" style="cursor:pointer">
+            <div class="card-icon">📤</div><div class="phase-num">Phase 1</div>
+            <h3>Unterlagen hochladen</h3><p>Lernmaterial & Modellprüfungen</p>
+            <div class="time-badge">⏱ 20–30 Min.</div>
+          </div>
+          <div class="card colored c-emerald" onclick="showPage('phase2')" style="cursor:pointer">
+            <div class="card-icon">🧠</div><div class="phase-num">Phase 2</div>
+            <h3>KI-Analyse</h3><p>NotebookLM, ChatGPT, Fobizz</p>
+            <div class="time-badge">⏱ 40–60 Min.</div>
+          </div>
+          <div class="card colored c-amber" onclick="showPage('phase3')" style="cursor:pointer">
+            <div class="card-icon">🧪</div><div class="phase-num">Phase 3</div>
+            <h3>Probeprüfung</h3><p>Lernstand & Defizite</p>
+            <div class="time-badge">⏱ 30–40 Min.</div>
+          </div>
+          <div class="card colored c-purple" onclick="showPage('phase4')" style="cursor:pointer">
+            <div class="card-icon">📚</div><div class="phase-num">Phase 4</div>
+            <h3>Lernstrategien</h3><p>7 evidenzbasierte Methoden</p>
+            <div class="time-badge">⏱ 40–50 Min.</div>
+          </div>
+          <div class="card colored c-rose" onclick="showPage('phase5')" style="cursor:pointer">
+            <div class="card-icon">✨</div><div class="phase-num">Phase 5</div>
+            <h3>Reflexion</h3><p>Journal & KI-Feedback</p>
+            <div class="time-badge">⏱ 30–40 Min.</div>
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="two-col">
+          <div class="card">
+            <h4 style="font-family:'Outfit',sans-serif;font-weight:700;color:#fff;margin-bottom:1rem">📅 21-Tage-Lerntracker</h4>
+            <div class="tracker-grid" id="tracker-grid"></div>
+          </div>
+          <div class="card">
+            <h4 style="font-family:'Outfit',sans-serif;font-weight:700;color:#fff;margin-bottom:1rem">🛠 Integrierte Tools</h4>
+            <div style="display:flex;flex-direction:column;gap:0.5rem">
+              <a href="https://notebooklm.google.com" target="_blank" style="display:flex;align-items:center;gap:0.6rem;color:var(--cyan);font-size:0.85rem;text-decoration:none">📖 NotebookLM ↗</a>
+              <a href="https://chat.openai.com" target="_blank" style="display:flex;align-items:center;gap:0.6rem;color:var(--emerald);font-size:0.85rem;text-decoration:none">🤖 ChatGPT ↗</a>
+              <a href="https://app.fobizz.com" target="_blank" style="display:flex;align-items:center;gap:0.6rem;color:var(--amber);font-size:0.85rem;text-decoration:none">🏫 Fobizz ↗</a>
+              <a href="https://cryptpad.fr" target="_blank" style="display:flex;align-items:center;gap:0.6rem;color:var(--purple);font-size:0.85rem;text-decoration:none">🔒 CryptPad ↗</a>
+              <a href="https://excalidraw.com" target="_blank" style="display:flex;align-items:center;gap:0.6rem;color:var(--teal);font-size:0.85rem;text-decoration:none">✏️ Excalidraw ↗</a>
+              <a href="https://quizlet.com" target="_blank" style="display:flex;align-items:center;gap:0.6rem;color:var(--rose);font-size:0.85rem;text-decoration:none">🃏 Quizlet ↗</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     PHASE 1 – HOCHLADEN
+═══════════════════════════════════════════════════ -->
+<div id="page-phase1" class="page">
+  <div class="app-layout">
+    <aside class="sidebar" id="sidebar-p1">
+      <div class="sidebar-label">Navigation</div>
+      <div class="sidebar-section">
+        <button class="sidebar-link" onclick="showPage('dashboard')"><span class="link-icon">🏠</span> Dashboard</button>
+        <button class="sidebar-link active"><span class="link-icon">📤</span> Phase 1</button>
+        <button class="sidebar-link" onclick="showPage('phase2')"><span class="link-icon">🧠</span> Phase 2</button>
+        <button class="sidebar-link" onclick="showPage('phase3')"><span class="link-icon">🧪</span> Phase 3</button>
+        <button class="sidebar-link" onclick="showPage('phase4')"><span class="link-icon">📚</span> Phase 4</button>
+        <button class="sidebar-link" onclick="showPage('phase5')"><span class="link-icon">✨</span> Phase 5</button>
+        <button class="sidebar-link" onclick="showPage('lehrer')"><span class="link-icon">🎓</span> Lehrperson</button>
+      </div>
+    </aside>
+    <main class="main-content">
+      <div class="phase-page">
+        <div class="phase-header">
+          <div class="phase-label" style="color:var(--cyan)">Phase 1 von 5</div>
+          <h2>📤 Unterlagen hochladen</h2>
+          <p>Lade deine Unterrichtsunterlagen und Modellprüfungen hoch. Importiere sie dann in NotebookLM als KI-Wissensbasis.</p>
+          <div class="time-info">⏱ 20–30 Minuten · Ziel: Lernmaterial bereitstellen</div>
+        </div>
+
+        <div class="alert alert-cyan">💡 <strong>Tipp:</strong> Lade alle relevanten Unterlagen auf einmal hoch – NotebookLM kann bis zu 50 Quellen verarbeiten.</div>
+
+        <!-- Lernziele -->
+        <div class="block">
+          <h4><span class="step-num">🎯</span> Lernziele definieren</h4>
+          <p style="margin-bottom:0.75rem">Was möchtest du nach dieser Prüfungsvorbereitung können?</p>
+          <div id="lernziele-list">
+            <div class="check-row"><input type="checkbox" id="lz1" onchange="saveLernziele()"><label for="lz1" id="lz1-label">Kernbegriffe und Definitionen erklären können</label></div>
+            <div class="check-row"><input type="checkbox" id="lz2" onchange="saveLernziele()"><label for="lz2" id="lz2-label">Zusammenhänge zwischen Themen herstellen</label></div>
+            <div class="check-row"><input type="checkbox" id="lz3" onchange="saveLernziele()"><label for="lz3" id="lz3-label">Typische Prüfungsaufgaben lösen</label></div>
+          </div>
+          <div style="display:flex;gap:0.5rem;margin-top:0.75rem">
+            <input class="fach-input" id="new-lernziel" placeholder="Eigenes Lernziel hinzufügen..." style="flex:1" onkeydown="if(event.key==='Enter')addLernziel()" />
+            <button class="btn-sm btn-cyan" onclick="addLernziel()">+ Hinzufügen</button>
+          </div>
+        </div>
+
+        <!-- Upload Unterlagen -->
+        <div class="block">
+          <h4><span class="step-num">1</span> Unterrichtsunterlagen hochladen</h4>
+          <div class="upload-area" onclick="document.getElementById('upload-unterlagen').click()" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleDrop(event,'unterlagen')">
+            <div class="upload-icon">📄</div>
+            <h4>Unterlagen hier ablegen</h4>
+            <p>PDF, Word, PowerPoint, Bilder – oder klicken zum Auswählen</p>
+            <input type="file" id="upload-unterlagen" multiple accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.png,.jpg,.jpeg" onchange="handleFiles(event,'unterlagen')" />
+          </div>
+          <div class="file-list" id="files-unterlagen"></div>
+        </div>
+
+        <!-- Upload Modellprüfungen -->
+        <div class="block">
+          <h4><span class="step-num">2</span> Modellprüfungen hochladen</h4>
+          <div class="upload-area" onclick="document.getElementById('upload-modell').click()" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleDrop(event,'modell')">
+            <div class="upload-icon">📝</div>
+            <h4>Modellprüfungen hier ablegen</h4>
+            <p>Frühere Prüfungen, Musteraufgaben, Lösungsblätter</p>
+            <input type="file" id="upload-modell" multiple accept=".pdf,.doc,.docx,.png,.jpg,.jpeg" onchange="handleFiles(event,'modell')" />
+          </div>
+          <div class="file-list" id="files-modell"></div>
+        </div>
+
+        <!-- NotebookLM Anleitung -->
+        <div class="block">
+          <h4><span class="step-num">3</span> In NotebookLM importieren</h4>
+          <ol style="padding-left:1.25rem;display:flex;flex-direction:column;gap:0.5rem">
+            <li><strong style="color:#fff">Öffne</strong> <a href="https://notebooklm.google.com" target="_blank" style="color:var(--cyan)">notebooklm.google.com</a> (Google-Konto erforderlich)</li>
+            <li><strong style="color:#fff">Erstelle</strong> ein neues Notizbuch – benenne es nach Fach und Thema</li>
+            <li><strong style="color:#fff">Lade</strong> alle Unterlagen als Quellen hoch (Button „+ Quelle hinzufügen")</li>
+            <li><strong style="color:#fff">Warte</strong> bis alle Quellen verarbeitet sind (grüner Haken)</li>
+            <li><strong style="color:#fff">Teile</strong> den Link mit deiner Lernpartnerin via CryptPad oder direkt</li>
+          </ol>
+          <div style="margin-top:1rem">
+            <a href="https://notebooklm.google.com" target="_blank" class="btn-sm btn-cyan">📖 NotebookLM öffnen ↗</a>
+          </div>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;margin-top:2rem">
+          <button class="btn-sm btn-ghost" onclick="showPage('dashboard')">← Dashboard</button>
+          <button class="btn-sm btn-emerald" onclick="completePhase(1)">✓ Phase 1 abschliessen → Phase 2</button>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     PHASE 2 – KI-ANALYSE
+═══════════════════════════════════════════════════ -->
+<div id="page-phase2" class="page">
+  <div class="app-layout">
+    <aside class="sidebar">
+      <div class="sidebar-label">Navigation</div>
+      <div class="sidebar-section">
+        <button class="sidebar-link" onclick="showPage('dashboard')"><span class="link-icon">🏠</span> Dashboard</button>
+        <button class="sidebar-link" onclick="showPage('phase1')"><span class="link-icon">📤</span> Phase 1</button>
+        <button class="sidebar-link active"><span class="link-icon">🧠</span> Phase 2</button>
+        <button class="sidebar-link" onclick="showPage('phase3')"><span class="link-icon">🧪</span> Phase 3</button>
+        <button class="sidebar-link" onclick="showPage('phase4')"><span class="link-icon">📚</span> Phase 4</button>
+        <button class="sidebar-link" onclick="showPage('phase5')"><span class="link-icon">✨</span> Phase 5</button>
+        <button class="sidebar-link" onclick="showPage('lehrer')"><span class="link-icon">🎓</span> Lehrperson</button>
+      </div>
+    </aside>
+    <main class="main-content">
+      <div class="phase-page">
+        <div class="phase-header">
+          <div class="phase-label" style="color:var(--emerald)">Phase 2 von 5</div>
+          <h2>🧠 KI-gestützte Analyse</h2>
+          <p>Nutze NotebookLM, ChatGPT und Fobizz um den Prüfungsstoff zu strukturieren, Zusammenfassungen zu erstellen und Wissenslücken zu identifizieren.</p>
+          <div class="time-info">⏱ 40–60 Minuten · Ziel: Stoff verstehen und strukturieren</div>
+        </div>
+
+        <!-- NotebookLM -->
+        <div class="block">
+          <h4><span class="step-num">1</span> 📖 NotebookLM – Stoff analysieren</h4>
+          <p style="margin-bottom:0.75rem">Nutze diese Prompts direkt im NotebookLM-Chat:</p>
+          <div class="prompt-box">
+            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+            <pre>Erstelle eine strukturierte Übersicht der wichtigsten Themen und Konzepte aus meinen Unterlagen. Gliedere sie in Hauptthemen und Unterthemen mit kurzen Erklärungen.</pre>
+          </div>
+          <div class="prompt-box">
+            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+            <pre>Welche 10 Kernbegriffe muss ich für die Prüfung unbedingt kennen? Erkläre jeden Begriff in 2–3 Sätzen und gib ein konkretes Beispiel.</pre>
+          </div>
+          <div class="prompt-box">
+            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+            <pre>Erstelle eine Mindmap-Struktur (als Text) mit dem Hauptthema in der Mitte und den wichtigsten Ästen. Zeige die Verbindungen zwischen den Konzepten.</pre>
+          </div>
+          <div class="prompt-box">
+            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+            <pre>Welche Themen aus meinen Unterlagen sind besonders prüfungsrelevant? Begründe deine Einschätzung und gib an, wie viel Gewicht jedes Thema haben könnte.</pre>
+          </div>
+          <a href="https://notebooklm.google.com" target="_blank" class="btn-sm btn-cyan" style="display:inline-block;margin-top:0.75rem">📖 NotebookLM öffnen ↗</a>
+        </div>
+
+        <!-- ChatGPT -->
+        <div class="block">
+          <h4><span class="step-num">2</span> 🤖 ChatGPT – Vertiefung & Erklärungen</h4>
+          <div class="prompt-box">
+            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+            <pre>Ich lerne gerade [THEMA] für eine Prüfung. Erkläre mir das Konzept [KONZEPT] so, als wäre ich 16 Jahre alt. Verwende Analogien und Beispiele aus dem Alltag.</pre>
+          </div>
+          <div class="prompt-box">
+            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+            <pre>Erstelle eine Vergleichstabelle zwischen [KONZEPT A] und [KONZEPT B]. Zeige Gemeinsamkeiten, Unterschiede und typische Anwendungsfälle.</pre>
+          </div>
+          <div class="prompt-box">
+            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+            <pre>Ich habe folgendes noch nicht verstanden: [THEMA]. Erkläre es mir Schritt für Schritt. Stelle mir danach 3 Verständnisfragen, um zu prüfen ob ich es verstanden habe.</pre>
+          </div>
+          <a href="https://chat.openai.com" target="_blank" class="btn-sm btn-emerald" style="display:inline-block;margin-top:0.75rem">🤖 ChatGPT öffnen ↗</a>
+        </div>
+
+        <!-- Fobizz -->
+        <div class="block">
+          <h4><span class="step-num">3</span> 🏫 Fobizz – Schul-KI (DSGVO-konform)</h4>
+          <p style="margin-bottom:0.75rem">Fobizz bietet verschiedene KI-Tools speziell für Schüler*innen:</p>
+          <ul>
+            <li><strong style="color:#fff">KI-Tutor:</strong> Erklärt Konzepte und beantwortet Fragen</li>
+            <li><strong style="color:#fff">Zusammenfassungs-Tool:</strong> Fasst lange Texte zusammen</li>
+            <li><strong style="color:#fff">Lernkarten-Generator:</strong> Erstellt Karteikarten aus Texten</li>
+            <li><strong style="color:#fff">Quiz-Generator:</strong> Generiert Übungsfragen</li>
+          </ul>
+          <a href="https://app.fobizz.com" target="_blank" class="btn-sm btn-amber" style="display:inline-block;margin-top:0.75rem;background:var(--amber-dim);border:1px solid rgba(251,191,36,0.3);color:var(--amber)">🏫 Fobizz öffnen ↗</a>
+        </div>
+
+        <!-- CryptPad -->
+        <div class="block">
+          <h4><span class="step-num">4</span> 🔒 CryptPad – Gemeinsam strukturieren</h4>
+          <p style="margin-bottom:0.75rem">Erstellt gemeinsam ein strukturiertes Dokument mit euren Erkenntnissen:</p>
+          <ul>
+            <li>Öffnet ein neues CryptPad-Dokument und teilt den Link</li>
+            <li>Tragt die wichtigsten Erkenntnisse aus NotebookLM und ChatGPT ein</li>
+            <li>Markiert Wissenslücken mit 🔴 und verstandene Themen mit 🟢</li>
+            <li>Teilt das Dokument mit der Lehrperson für Feedback</li>
+          </ul>
+          <a href="https://cryptpad.fr" target="_blank" class="btn-sm" style="display:inline-block;margin-top:0.75rem;background:var(--purple-dim);border:1px solid rgba(167,139,250,0.3);color:var(--purple)">🔒 CryptPad öffnen ↗</a>
+        </div>
+
+        <!-- Excalidraw -->
+        <div class="block">
+          <h4><span class="step-num">5</span> ✏️ Excalidraw – Mindmap erstellen</h4>
+          <p style="margin-bottom:0.75rem">Visualisiert den Prüfungsstoff als kollaborative Mindmap:</p>
+          <ul>
+            <li>Öffnet Excalidraw und erstellt ein neues Board</li>
+            <li>Nutzt die Mindmap-Struktur aus NotebookLM als Vorlage</li>
+            <li>Beide Personen können gleichzeitig zeichnen und ergänzen</li>
+            <li>Screenshot für die Druckansicht speichern</li>
+          </ul>
+          <a href="https://excalidraw.com" target="_blank" class="btn-sm" style="display:inline-block;margin-top:0.75rem;background:var(--teal-dim);border:1px solid rgba(45,212,191,0.3);color:var(--teal)">✏️ Excalidraw öffnen ↗</a>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;margin-top:2rem">
+          <button class="btn-sm btn-ghost" onclick="showPage('phase1')">← Phase 1</button>
+          <button class="btn-sm btn-emerald" onclick="completePhase(2)">✓ Phase 2 abschliessen → Phase 3</button>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     PHASE 3 – PROBEPRÜFUNG
+═══════════════════════════════════════════════════ -->
+<div id="page-phase3" class="page">
+  <div class="app-layout">
+    <aside class="sidebar">
+      <div class="sidebar-label">Navigation</div>
+      <div class="sidebar-section">
+        <button class="sidebar-link" onclick="showPage('dashboard')"><span class="link-icon">🏠</span> Dashboard</button>
+        <button class="sidebar-link" onclick="showPage('phase1')"><span class="link-icon">📤</span> Phase 1</button>
+        <button class="sidebar-link" onclick="showPage('phase2')"><span class="link-icon">🧠</span> Phase 2</button>
+        <button class="sidebar-link active"><span class="link-icon">🧪</span> Phase 3</button>
+        <button class="sidebar-link" onclick="showPage('phase4')"><span class="link-icon">📚</span> Phase 4</button>
+        <button class="sidebar-link" onclick="showPage('phase5')"><span class="link-icon">✨</span> Phase 5</button>
+        <button class="sidebar-link" onclick="showPage('lehrer')"><span class="link-icon">🎓</span> Lehrperson</button>
+      </div>
+    </aside>
+    <main class="main-content">
+      <div class="phase-page">
+        <div class="phase-header">
+          <div class="phase-label" style="color:var(--amber)">Phase 3 von 5</div>
+          <h2>🧪 Probeprüfung generieren</h2>
+          <p>Lass dir eine massgeschneiderte Probeprüfung generieren. Erkenne Defizite und fokussiere dein Lernen gezielt auf Schwachstellen.</p>
+          <div class="time-info">⏱ 30–40 Minuten · Ziel: Lernstand ermitteln</div>
+        </div>
+
+        <!-- Prompts -->
+        <div class="block">
+          <h4><span class="step-num">1</span> 🤖 Probeprüfung mit ChatGPT generieren</h4>
+          <div class="prompt-box">
+            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+            <pre>Erstelle eine 10-Minuten-Probeprüfung zum Thema [THEMA] mit 5 Fragen unterschiedlicher Schwierigkeit (2 leicht, 2 mittel, 1 schwer). Füge nach jeder Frage die Musterlösung in einem separaten Abschnitt ein.</pre>
+          </div>
+          <div class="prompt-box">
+            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+            <pre>Erstelle eine 30-Minuten-Vollprüfung zu [THEMA] mit: 5 Multiple-Choice-Fragen, 3 Kurzantwort-Fragen (je 3–5 Sätze), 1 Analyse-/Transferaufgabe. Bewertungsschema beilegen.</pre>
+          </div>
+          <div class="prompt-box">
+            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+            <pre>Analysiere meine Antworten auf folgende Fragen und zeige mir, wo meine Wissenslücken liegen: [FRAGEN UND ANTWORTEN EINFÜGEN]. Erstelle danach einen gezielten Lernplan für die Lücken.</pre>
+          </div>
+          <a href="https://chat.openai.com" target="_blank" class="btn-sm btn-emerald" style="display:inline-block;margin-top:0.75rem">🤖 ChatGPT öffnen ↗</a>
+        </div>
+
+        <!-- Demo Quiz -->
+        <div class="block">
+          <h4><span class="step-num">2</span> 🎯 Demo-Quiz – Allgemeines Lernverhalten</h4>
+          <p style="margin-bottom:1rem">Teste dein Wissen über effektives Lernen:</p>
+          <div id="quiz-container"></div>
+          <div id="quiz-result" class="hidden"></div>
+          <div id="quiz-controls" style="margin-top:1rem;display:flex;gap:0.5rem">
+            <button class="btn-sm btn-cyan" id="quiz-submit" onclick="submitQuiz()">Auswerten</button>
+            <button class="btn-sm btn-ghost" onclick="resetQuiz()">Neu starten</button>
+          </div>
+        </div>
+
+        <!-- Weitere Tools -->
+        <div class="block">
+          <h4><span class="step-num">3</span> 🃏 Weitere Übungstools</h4>
+          <div class="grid-3" style="margin:0">
+            <a href="https://quizlet.com" target="_blank" class="card colored c-rose" style="text-decoration:none;display:block">
+              <div class="card-icon">🃏</div><h3>Quizlet</h3><p>Lernkarten, Matching, Tests</p>
+            </a>
+            <a href="https://revisely.com" target="_blank" class="card colored c-cyan" style="text-decoration:none;display:block">
+              <div class="card-icon">📊</div><h3>Revisely</h3><p>KI-Lernkarten aus PDFs</p>
+            </a>
+            <a href="https://kahoot.com" target="_blank" class="card colored c-amber" style="text-decoration:none;display:block">
+              <div class="card-icon">🎮</div><h3>Kahoot</h3><p>Gemeinsam spielerisch testen</p>
+            </a>
+          </div>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;margin-top:2rem">
+          <button class="btn-sm btn-ghost" onclick="showPage('phase2')">← Phase 2</button>
+          <button class="btn-sm btn-emerald" onclick="completePhase(3)">✓ Phase 3 abschliessen → Phase 4</button>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     PHASE 4 – LERNSTRATEGIEN
+═══════════════════════════════════════════════════ -->
+<div id="page-phase4" class="page">
+  <div class="app-layout">
+    <aside class="sidebar">
+      <div class="sidebar-label">Navigation</div>
+      <div class="sidebar-section">
+        <button class="sidebar-link" onclick="showPage('dashboard')"><span class="link-icon">🏠</span> Dashboard</button>
+        <button class="sidebar-link" onclick="showPage('phase1')"><span class="link-icon">📤</span> Phase 1</button>
+        <button class="sidebar-link" onclick="showPage('phase2')"><span class="link-icon">🧠</span> Phase 2</button>
+        <button class="sidebar-link" onclick="showPage('phase3')"><span class="link-icon">🧪</span> Phase 3</button>
+        <button class="sidebar-link active"><span class="link-icon">📚</span> Phase 4</button>
+        <button class="sidebar-link" onclick="showPage('phase5')"><span class="link-icon">✨</span> Phase 5</button>
+        <button class="sidebar-link" onclick="showPage('lehrer')"><span class="link-icon">🎓</span> Lehrperson</button>
+      </div>
+    </aside>
+    <main class="main-content">
+      <div class="phase-page">
+        <div class="phase-header">
+          <div class="phase-label" style="color:var(--purple)">Phase 4 von 5</div>
+          <h2>📚 Lernstrategien anwenden</h2>
+          <p>7 evidenzbasierte Lernstrategien helfen dir, den Stoff tief zu verankern und langfristig zu behalten.</p>
+          <div class="time-info">⏱ 40–50 Minuten · Ziel: Stoff tief verankern</div>
+        </div>
+
+        <div class="grid-2" style="margin-bottom:1.25rem">
+          <div class="strategy-card">
+            <h4>🧑‍🏫 Feynman-Technik <span class="strategy-badge" style="background:var(--cyan-dim);color:var(--cyan);border:1px solid rgba(34,211,238,0.25)">Sehr effektiv</span></h4>
+            <p>Erkläre das Thema so, als würdest du es einem 10-jährigen Kind erklären. Was du nicht einfach erklären kannst, hast du noch nicht verstanden.</p>
+            <div class="prompt-box" style="margin-top:0.5rem">
+              <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+              <pre>Ich erkläre dir jetzt [THEMA]: [DEINE ERKLÄRUNG]. Bitte gib mir Feedback: Was habe ich gut erklärt? Was ist unklar geblieben? Welche Lücken habe ich?</pre>
+            </div>
+          </div>
+          <div class="strategy-card">
+            <h4>🔁 Retrieval Practice <span class="strategy-badge" style="background:var(--emerald-dim);color:var(--emerald);border:1px solid rgba(52,211,153,0.25)">Sehr effektiv</span></h4>
+            <p>Schliesse das Buch und schreibe alles auf, was du weisst. Dann vergleiche mit den Unterlagen. Das Abrufen stärkt das Gedächtnis stärker als nochmaliges Lesen.</p>
+            <div class="prompt-box" style="margin-top:0.5rem">
+              <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+              <pre>Stelle mir 10 Fragen zu [THEMA] ohne Antworten. Ich beantworte sie aus dem Gedächtnis und du gibst mir danach Feedback zu meinen Antworten.</pre>
+            </div>
+          </div>
+          <div class="strategy-card">
+            <h4>📅 Spaced Repetition <span class="strategy-badge" style="background:var(--amber-dim);color:var(--amber);border:1px solid rgba(251,191,36,0.25)">Effektiv</span></h4>
+            <p>Lerne in mehreren kurzen Sessions über mehrere Tage verteilt. Wiederhole Stoff nach 1 Tag, 3 Tagen, 1 Woche. Der Vergessenskurve entgegenwirken.</p>
+            <a href="https://quizlet.com" target="_blank" class="btn-sm" style="display:inline-block;margin-top:0.5rem;background:var(--amber-dim);border:1px solid rgba(251,191,36,0.3);color:var(--amber)">🃏 Quizlet für Spaced Repetition ↗</a>
+          </div>
+          <div class="strategy-card">
+            <h4>🗺 Mindmapping <span class="strategy-badge" style="background:var(--purple-dim);color:var(--purple);border:1px solid rgba(167,139,250,0.25)">Effektiv</span></h4>
+            <p>Visualisiere Zusammenhänge zwischen Konzepten. Zeichne das Hauptthema in die Mitte und verbinde es mit Unterthemen. Nutze Farben und Symbole.</p>
+            <a href="https://excalidraw.com" target="_blank" class="btn-sm" style="display:inline-block;margin-top:0.5rem;background:var(--purple-dim);border:1px solid rgba(167,139,250,0.3);color:var(--purple)">✏️ Excalidraw öffnen ↗</a>
+          </div>
+          <div class="strategy-card">
+            <h4>🔀 Interleaving <span class="strategy-badge" style="background:var(--teal-dim);color:var(--teal);border:1px solid rgba(45,212,191,0.25)">Effektiv</span></h4>
+            <p>Wechsle zwischen verschiedenen Themen statt ein Thema bis zur Erschöpfung zu lernen. Das fühlt sich schwieriger an, führt aber zu besserem Lernen.</p>
+            <div class="prompt-box" style="margin-top:0.5rem">
+              <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+              <pre>Erstelle einen 60-Minuten-Lernplan für [THEMA A], [THEMA B] und [THEMA C] mit abwechselnden 15-Minuten-Blöcken und kurzen Pausen.</pre>
+            </div>
+          </div>
+          <div class="strategy-card">
+            <h4>🔗 Elaboration <span class="strategy-badge" style="background:var(--rose-dim);color:var(--rose);border:1px solid rgba(251,113,133,0.25)">Effektiv</span></h4>
+            <p>Verbinde neues Wissen mit dem, was du bereits weisst. Stelle dir Fragen: Warum ist das so? Wie hängt das mit X zusammen? Was würde passieren, wenn...?</p>
+            <div class="prompt-box" style="margin-top:0.5rem">
+              <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+              <pre>Hilf mir, [NEUES KONZEPT] mit meinem Vorwissen zu [BEKANNTES THEMA] zu verbinden. Welche Analogien und Verknüpfungen gibt es?</pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- Wenn-Dann Planung -->
+        <div class="block">
+          <h4><span class="step-num">📋</span> Wenn-Dann-Planung (Motivationsstrategie)</h4>
+          <p style="margin-bottom:0.75rem">Konkrete Pläne erhöhen die Wahrscheinlichkeit, dass du sie umsetzt:</p>
+          <div style="display:flex;flex-direction:column;gap:0.5rem">
+            <div style="display:flex;gap:0.5rem;align-items:center;font-size:0.875rem">
+              <span style="color:var(--muted);white-space:nowrap">Wenn ich</span>
+              <input class="fach-input" id="wenn-input" placeholder="z.B. nach dem Abendessen bin..." style="flex:1" />
+              <span style="color:var(--muted);white-space:nowrap">dann werde ich</span>
+              <input class="fach-input" id="dann-input" placeholder="z.B. 25 Min. Retrieval Practice machen" style="flex:1" />
+            </div>
+            <button class="btn-sm btn-cyan" onclick="saveWennDann()" style="align-self:flex-start">+ Speichern</button>
+          </div>
+          <div id="wenn-dann-list" style="margin-top:0.75rem;display:flex;flex-direction:column;gap:0.4rem"></div>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;margin-top:2rem">
+          <button class="btn-sm btn-ghost" onclick="showPage('phase3')">← Phase 3</button>
+          <button class="btn-sm btn-emerald" onclick="completePhase(4)">✓ Phase 4 abschliessen → Phase 5</button>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     PHASE 5 – REFLEXION
+═══════════════════════════════════════════════════ -->
+<div id="page-phase5" class="page">
+  <div class="app-layout">
+    <aside class="sidebar">
+      <div class="sidebar-label">Navigation</div>
+      <div class="sidebar-section">
+        <button class="sidebar-link" onclick="showPage('dashboard')"><span class="link-icon">🏠</span> Dashboard</button>
+        <button class="sidebar-link" onclick="showPage('phase1')"><span class="link-icon">📤</span> Phase 1</button>
+        <button class="sidebar-link" onclick="showPage('phase2')"><span class="link-icon">🧠</span> Phase 2</button>
+        <button class="sidebar-link" onclick="showPage('phase3')"><span class="link-icon">🧪</span> Phase 3</button>
+        <button class="sidebar-link" onclick="showPage('phase4')"><span class="link-icon">📚</span> Phase 4</button>
+        <button class="sidebar-link active"><span class="link-icon">✨</span> Phase 5</button>
+        <button class="sidebar-link" onclick="showPage('lehrer')"><span class="link-icon">🎓</span> Lehrperson</button>
+      </div>
+    </aside>
+    <main class="main-content">
+      <div class="phase-page">
+        <div class="phase-header">
+          <div class="phase-label" style="color:var(--rose)">Phase 5 von 5</div>
+          <h2>✨ Reflexion & Feedback</h2>
+          <p>Reflektiere dein Lernverhalten, hole dir KI-Feedback und tausche dich mit deiner Lernpartnerin aus.</p>
+          <div class="time-info">⏱ 30–40 Minuten · Ziel: Lernprozess verstehen und verbessern</div>
+        </div>
+
+        <!-- Lernjournal -->
+        <div class="block">
+          <h4><span class="step-num">1</span> 📓 Lernjournal</h4>
+          <div class="two-col">
+            <div>
+              <p style="margin-bottom:0.5rem;font-size:0.8rem;color:var(--muted)">Person A – <span id="journal-name-a">Lernperson A</span></p>
+              <textarea class="journal-area" id="journal-a" placeholder="Was habe ich heute gelernt? Was war schwierig? Was hat gut funktioniert?" oninput="saveJournal()"></textarea>
+            </div>
+            <div>
+              <p style="margin-bottom:0.5rem;font-size:0.8rem;color:var(--muted)">Person B – <span id="journal-name-b">Lernperson B</span></p>
+              <textarea class="journal-area" id="journal-b" placeholder="Was habe ich heute gelernt? Was war schwierig? Was hat gut funktioniert?" oninput="saveJournal()"></textarea>
+            </div>
+          </div>
+          <button class="btn-sm btn-ghost" onclick="exportJournal()" style="margin-top:0.75rem">⬇ Journal exportieren (.txt)</button>
+        </div>
+
+        <!-- KI-Feedback Prompts -->
+        <div class="block">
+          <h4><span class="step-num">2</span> 🤖 KI-Feedback einholen</h4>
+          <p style="margin-bottom:0.75rem">Kopiere deinen Journaleintrag und nutze diese Prompts:</p>
+          <div class="prompt-box">
+            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+            <pre>Analysiere meinen Lernprozess basierend auf diesem Journaleintrag: [JOURNAL EINFÜGEN]. Was lief gut? Was könnte ich verbessern? Welche Lernstrategie würdest du mir für die nächste Session empfehlen?</pre>
+          </div>
+          <div class="prompt-box">
+            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+            <pre>Ich habe heute [THEMA] gelernt und folgende Schwierigkeiten gehabt: [SCHWIERIGKEITEN]. Erstelle mir einen personalisierten Lernplan für die nächsten 3 Tage bis zur Prüfung.</pre>
+          </div>
+          <div class="prompt-box">
+            <button class="copy-btn" onclick="copyPrompt(this)">Kopieren</button>
+            <pre>Bewerte meine Lernstrategie: Ich habe [STRATEGIE] verwendet und dabei [ERGEBNIS] erreicht. Wie effektiv ist diese Strategie für [THEMA]? Was würde besser funktionieren?</pre>
+          </div>
+          <a href="https://chat.openai.com" target="_blank" class="btn-sm btn-emerald" style="display:inline-block;margin-top:0.75rem">🤖 ChatGPT öffnen ↗</a>
+        </div>
+
+        <!-- Fünf-Finger-Feedback -->
+        <div class="block">
+          <h4><span class="step-num">3</span> ✋ Fünf-Finger-Peer-Feedback</h4>
+          <div class="grid-2" style="margin:0">
+            <div>
+              <p style="font-size:0.8rem;color:var(--muted);margin-bottom:0.75rem">Person A → Person B</p>
+              <div style="display:flex;flex-direction:column;gap:0.5rem">
+                <textarea class="journal-area" id="ff-daumen-ab" placeholder="👍 Das hat mir besonders gut gefallen..." style="min-height:60px" oninput="saveFeedback()"></textarea>
+                <textarea class="journal-area" id="ff-zeige-ab" placeholder="☝️ Das möchte ich hervorheben..." style="min-height:60px" oninput="saveFeedback()"></textarea>
+                <textarea class="journal-area" id="ff-mittel-ab" placeholder="🖕 Das war mittelmässig..." style="min-height:60px" oninput="saveFeedback()"></textarea>
+                <textarea class="journal-area" id="ff-ring-ab" placeholder="💍 Das wünsche ich mir mehr..." style="min-height:60px" oninput="saveFeedback()"></textarea>
+                <textarea class="journal-area" id="ff-klein-ab" placeholder="🤙 Mein wichtigster Tipp..." style="min-height:60px" oninput="saveFeedback()"></textarea>
+              </div>
+            </div>
+            <div>
+              <p style="font-size:0.8rem;color:var(--muted);margin-bottom:0.75rem">Person B → Person A</p>
+              <div style="display:flex;flex-direction:column;gap:0.5rem">
+                <textarea class="journal-area" id="ff-daumen-ba" placeholder="👍 Das hat mir besonders gut gefallen..." style="min-height:60px" oninput="saveFeedback()"></textarea>
+                <textarea class="journal-area" id="ff-zeige-ba" placeholder="☝️ Das möchte ich hervorheben..." style="min-height:60px" oninput="saveFeedback()"></textarea>
+                <textarea class="journal-area" id="ff-mittel-ba" placeholder="🖕 Das war mittelmässig..." style="min-height:60px" oninput="saveFeedback()"></textarea>
+                <textarea class="journal-area" id="ff-ring-ba" placeholder="💍 Das wünsche ich mir mehr..." style="min-height:60px" oninput="saveFeedback()"></textarea>
+                <textarea class="journal-area" id="ff-klein-ba" placeholder="🤙 Mein wichtigster Tipp..." style="min-height:60px" oninput="saveFeedback()"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;margin-top:2rem">
+          <button class="btn-sm btn-ghost" onclick="showPage('phase4')">← Phase 4</button>
+          <button class="btn-sm btn-emerald" onclick="completePhase(5)">🎉 Phase 5 abschliessen – Fertig!</button>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     LEHRPERSON
+═══════════════════════════════════════════════════ -->
+<div id="page-lehrer" class="page">
+  <div class="phase-page" style="max-width:900px;margin:0 auto;padding:2rem 1.5rem">
+    <div class="phase-header">
+      <div class="phase-label" style="color:var(--teal)">Lehrperson-Ansicht</div>
+      <h2>🎓 Lehrperson-Dashboard</h2>
+      <p>Übersicht über den Lernfortschritt, Möglichkeit zum Mitlesen und Kommentieren.</p>
+    </div>
+
+    <!-- Fortschritt anzeigen -->
+    <div class="lehrer-block">
+      <h4>📊 Lernfortschritt der Schüler*innen</h4>
+      <div id="lehrer-progress-info" style="color:var(--muted);font-size:0.875rem">Noch keine Daten vorhanden.</div>
+    </div>
+
+    <!-- Mitlesen -->
+    <div class="lehrer-block">
+      <h4>👁 Lernprozess mitlesen</h4>
+      <p style="font-size:0.875rem;color:var(--muted);margin-bottom:1rem">So können Sie die Arbeit der Schüler*innen einsehen und kommentieren:</p>
+      <div class="grid-3" style="margin:0">
+        <div class="card colored c-cyan">
+          <div class="card-icon">📖</div><h3>NotebookLM</h3>
+          <p>Schüler*innen teilen den Notizbuch-Link. Sie können als Gast mitlesen und Kommentare hinterlassen.</p>
+        </div>
+        <div class="card colored c-purple">
+          <div class="card-icon">🔒</div><h3>CryptPad</h3>
+          <p>Schüler*innen erstellen ein gemeinsames Dokument und teilen den Link. Direktes Kommentieren möglich.</p>
+        </div>
+        <div class="card colored c-amber">
+          <div class="card-icon">🏫</div><h3>Fobizz</h3>
+          <p>Über die Klassen-Funktion können Sie Aufgaben stellen und Ergebnisse direkt einsehen.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Journal anzeigen -->
+    <div class="lehrer-block">
+      <h4>📓 Lernjournal der Schüler*innen</h4>
+      <div class="lehrer-tabs">
+        <button class="lehrer-tab active" onclick="showLehrerTab('journal-a-view')">Person A</button>
+        <button class="lehrer-tab" onclick="showLehrerTab('journal-b-view')">Person B</button>
+      </div>
+      <div id="journal-a-view">
+        <p style="font-size:0.8rem;color:var(--muted);margin-bottom:0.5rem" id="lehrer-journal-name-a">Person A</p>
+        <div id="lehrer-journal-a-content" style="background:var(--bg);border-radius:8px;padding:1rem;border:1px solid var(--border);font-size:0.875rem;color:var(--muted);min-height:80px;white-space:pre-wrap">Noch kein Journaleintrag vorhanden.</div>
+      </div>
+      <div id="journal-b-view" class="hidden">
+        <p style="font-size:0.8rem;color:var(--muted);margin-bottom:0.5rem" id="lehrer-journal-name-b">Person B</p>
+        <div id="lehrer-journal-b-content" style="background:var(--bg);border-radius:8px;padding:1rem;border:1px solid var(--border);font-size:0.875rem;color:var(--muted);min-height:80px;white-space:pre-wrap">Noch kein Journaleintrag vorhanden.</div>
+      </div>
+    </div>
+
+    <!-- Kommentare -->
+    <div class="lehrer-block">
+      <h4>💬 Kommentare der Lehrperson</h4>
+      <div class="lehrer-tabs">
+        <button class="lehrer-tab active" onclick="showLehrerKommentarTab('allgemein')">Allgemein</button>
+        <button class="lehrer-tab" onclick="showLehrerKommentarTab('person-a')">Person A</button>
+        <button class="lehrer-tab" onclick="showLehrerKommentarTab('person-b')">Person B</button>
+      </div>
+      <div id="kommentar-allgemein">
+        <textarea class="journal-area" id="lehrer-kommentar-allgemein" placeholder="Allgemeines Feedback zur Lernsession..." oninput="saveLehrerKommentare()"></textarea>
+      </div>
+      <div id="kommentar-person-a" class="hidden">
+        <textarea class="journal-area" id="lehrer-kommentar-a" placeholder="Persönliches Feedback für Person A..." oninput="saveLehrerKommentare()"></textarea>
+      </div>
+      <div id="kommentar-person-b" class="hidden">
+        <textarea class="journal-area" id="lehrer-kommentar-b" placeholder="Persönliches Feedback für Person B..." oninput="saveLehrerKommentare()"></textarea>
+      </div>
+      <button class="btn-sm btn-cyan" onclick="exportLehrerFeedback()" style="margin-top:0.75rem">⬇ Feedback exportieren (.txt)</button>
+    </div>
+
+    <div style="margin-top:1rem">
+      <button class="btn-sm btn-ghost" onclick="showPage('dashboard')">← Zurück zum Dashboard</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     DRUCKANSICHT
+═══════════════════════════════════════════════════ -->
+<div id="page-print" class="page">
+  <div style="max-width:800px;margin:0 auto;padding:2rem 1.5rem">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem">
+      <h2 style="font-family:'Outfit',sans-serif;font-weight:900;color:#fff">🖨 Druckansicht</h2>
+      <div style="display:flex;gap:0.5rem">
+        <button class="btn-sm btn-cyan" onclick="window.print()">🖨 Drucken / Als PDF</button>
+        <button class="btn-sm btn-ghost" onclick="showPage('dashboard')">← Zurück</button>
+      </div>
+    </div>
+    <div id="print-content" style="background:var(--bg2);border-radius:16px;padding:2rem;border:1px solid var(--border)">
+      <div id="print-body" style="color:var(--text);font-size:0.875rem;line-height:1.7"></div>
+    </div>
+  </div>
+</div>
+
+<!-- CONFETTI -->
+<canvas id="confetti-canvas" class="confetti-overlay hidden"></canvas>
+
+<script>
+// ═══════════════════════════════════════════════════
+// STATE & LOCALSTORAGE
+// ═══════════════════════════════════════════════════
+const STATE_KEY = 'pruefungsnavigator_v2';
+let state = {
+  fach: '', thema: '', datum: '', personA: '', personB: '',
+  phases: [false,false,false,false,false],
+  tracker: Array(21).fill(false),
+  journalA: '', journalB: '',
+  feedbackAB: {daumen:'',zeige:'',mittel:'',ring:'',klein:''},
+  feedbackBA: {daumen:'',zeige:'',mittel:'',ring:'',klein:''},
+  lehrerKommentarAllgemein: '', lehrerKommentarA: '', lehrerKommentarB: '',
+  wennDann: [],
+  lernziele: []
+};
+
+function loadState() {
+  try {
+    const s = localStorage.getItem(STATE_KEY);
+    if (s) state = Object.assign(state, JSON.parse(s));
+  } catch(e) {}
+}
+
+function saveState() {
+  localStorage.setItem(STATE_KEY, JSON.stringify(state));
+}
+
+// ═══════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  window.scrollTo(0, 0);
+  if (id === 'dashboard') updateDashboard();
+  if (id === 'lehrer') updateLehrerView();
+  if (id === 'print') updatePrintView();
+  if (id === 'phase5') updateJournalNames();
+}
+
+// ═══════════════════════════════════════════════════
+// FACH & KONFIGURATION
+// ═══════════════════════════════════════════════════
+function saveFach() {
+  state.fach = document.getElementById('fach-select').value;
+  state.thema = document.getElementById('fach-thema').value;
+  state.datum = document.getElementById('fach-datum').value;
+  state.personA = document.getElementById('person-a').value;
+  state.personB = document.getElementById('person-b').value;
+  saveState();
+  updateCountdown();
+}
+
+function updateCountdown() {
+  const el = document.getElementById('countdown-display');
+  if (!el) return;
+  if (state.datum) {
+    const diff = Math.ceil((new Date(state.datum) - new Date()) / 86400000);
+    if (diff > 0) el.textContent = `⏳ Noch ${diff} Tag${diff===1?'':'e'} bis zur Prüfung`;
+    else if (diff === 0) el.textContent = '🚨 Prüfung ist heute!';
+    else el.textContent = `✅ Prüfung war vor ${Math.abs(diff)} Tag${Math.abs(diff)===1?'':'en'}`;
+  } else { el.textContent = ''; }
+}
+
+function loadFachInputs() {
+  const s = document.getElementById('fach-select');
+  const t = document.getElementById('fach-thema');
+  const d = document.getElementById('fach-datum');
+  const a = document.getElementById('person-a');
+  const b = document.getElementById('person-b');
+  if (s) s.value = state.fach || '';
+  if (t) t.value = state.thema || '';
+  if (d) d.value = state.datum || '';
+  if (a) a.value = state.personA || '';
+  if (b) b.value = state.personB || '';
+  updateCountdown();
+}
+
+// ═══════════════════════════════════════════════════
+// FORTSCHRITT
+// ═══════════════════════════════════════════════════
+function togglePhase(n) {
+  state.phases[n-1] = !state.phases[n-1];
+  saveState();
+  updateProgress();
+}
+
+function completePhase(n) {
+  state.phases[n-1] = true;
+  saveState();
+  updateProgress();
+  if (n < 5) showPage('phase' + (n+1));
+  else { showPage('dashboard'); triggerConfetti(); }
+}
+
+function updateProgress() {
+  const done = state.phases.filter(Boolean).length;
+  const pct = Math.round(done / 5 * 100);
+  const fill
+ = document.getElementById('progress-fill');
+  const pctEl = document.getElementById('progress-pct');
+  if (fill) fill.style.width = pct + '%';
+  if (pctEl) pctEl.textContent = pct + '%';
+  for (let i = 1; i <= 5; i++) {
+    const pill = document.getElementById('pill-' + i);
+    const done_el = document.getElementById('done-' + i);
+    if (pill) pill.classList.toggle('done', state.phases[i-1]);
+    if (done_el) done_el.classList.toggle('hidden', !state.phases[i-1]);
+  }
+  if (pct === 100) triggerConfetti();
+}
+
+function updateDashboard() {
+  loadFachInputs();
+  updateProgress();
+  renderTracker();
+}
+
+// ═══════════════════════════════════════════════════
+// TRACKER
+// ═══════════════════════════════════════════════════
+function renderTracker() {
+  const grid = document.getElementById('tracker-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  for (let i = 0; i < 21; i++) {
+    const d = document.createElement('div');
+    d.className = 'tracker-day' + (state.tracker[i] ? ' done' : '');
+    d.textContent = i + 1;
+    d.onclick = () => { state.tracker[i] = !state.tracker[i]; saveState(); renderTracker(); };
+    grid.appendChild(d);
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// UPLOAD
+// ═══════════════════════════════════════════════════
+const uploadedFiles = { unterlagen: [], modell: [] };
+
+function handleFiles(event, type) {
+  const files = Array.from(event.target.files);
+  files.forEach(f => uploadedFiles[type].push(f));
+  renderFileList(type);
+}
+
+function handleDrop(event, type) {
+  event.preventDefault();
+  event.currentTarget.classList.remove('drag');
+  const files = Array.from(event.dataTransfer.files);
+  files.forEach(f => uploadedFiles[type].push(f));
+  renderFileList(type);
+}
+
+function renderFileList(type) {
+  const list = document.getElementById('files-' + type);
+  if (!list) return;
+  list.innerHTML = uploadedFiles[type].map((f, i) => `
+    <div class="file-item">
+      <span style="font-size:1rem">${getFileIcon(f.name)}</span>
+      <span class="file-name">${f.name}</span>
+      <span class="file-size">${(f.size/1024).toFixed(0)} KB</span>
+      <button class="file-del" onclick="removeFile('${type}',${i})">✕</button>
+    </div>
+  `).join('');
+}
+
+function removeFile(type, idx) {
+  uploadedFiles[type].splice(idx, 1);
+  renderFileList(type);
+}
+
+function getFileIcon(name) {
+  const ext = name.split('.').pop().toLowerCase();
+  const icons = { pdf:'📄', doc:'📝', docx:'📝', ppt:'📊', pptx:'📊', txt:'📃', png:'🖼', jpg:'🖼', jpeg:'🖼' };
+  return icons[ext] || '📁';
+}
+
+// ═══════════════════════════════════════════════════
+// LERNZIELE
+// ═══════════════════════════════════════════════════
+function addLernziel() {
+  const input = document.getElementById('new-lernziel');
+  const text = input.value.trim();
+  if (!text) return;
+  state.lernziele.push({ text, done: false });
+  saveState();
+  input.value = '';
+  renderLernziele();
+}
+
+function saveLernziele() {
+  const checkboxes = document.querySelectorAll('#lernziele-list input[type=checkbox]');
+  checkboxes.forEach((cb, i) => {
+    if (i < 3) { /* built-in */ } else {
+      const idx = i - 3;
+      if (state.lernziele[idx]) state.lernziele[idx].done = cb.checked;
+    }
+  });
+  saveState();
+}
+
+function renderLernziele() {
+  const list = document.getElementById('lernziele-list');
+  if (!list) return;
+  const builtIn = [
+    'Kernbegriffe und Definitionen erklären können',
+    'Zusammenhänge zwischen Themen herstellen',
+    'Typische Prüfungsaufgaben lösen'
+  ];
+  let html = builtIn.map((t, i) => `
+    <div class="check-row">
+      <input type="checkbox" id="lz${i+1}" onchange="saveLernziele()">
+      <label for="lz${i+1}" id="lz${i+1}-label">${t}</label>
+    </div>
+  `).join('');
+  state.lernziele.forEach((lz, i) => {
+    html += `<div class="check-row">
+      <input type="checkbox" id="lz-custom-${i}" ${lz.done?'checked':''} onchange="saveLernziele()">
+      <label for="lz-custom-${i}" class="${lz.done?'checked':''}">${lz.text}</label>
+      <button onclick="removeLernziel(${i})" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:0.8rem;margin-left:auto">✕</button>
+    </div>`;
+  });
+  list.innerHTML = html;
+}
+
+function removeLernziel(idx) {
+  state.lernziele.splice(idx, 1);
+  saveState();
+  renderLernziele();
+}
+
+// ═══════════════════════════════════════════════════
+// WENN-DANN PLANUNG
+// ═══════════════════════════════════════════════════
+function saveWennDann() {
+  const wenn = document.getElementById('wenn-input').value.trim();
+  const dann = document.getElementById('dann-input').value.trim();
+  if (!wenn || !dann) return;
+  state.wennDann.push({ wenn, dann });
+  saveState();
+  document.getElementById('wenn-input').value = '';
+  document.getElementById('dann-input').value = '';
+  renderWennDann();
+}
+
+function renderWennDann() {
+  const list = document.getElementById('wenn-dann-list');
+  if (!list) return;
+  list.innerHTML = state.wennDann.map((wd, i) => `
+    <div style="display:flex;align-items:center;gap:0.5rem;background:var(--bg3);border-radius:8px;padding:0.5rem 0.75rem;border:1px solid var(--border);font-size:0.82rem">
+      <span style="color:var(--muted)">Wenn ich</span>
+      <strong style="color:#fff">${wd.wenn}</strong>
+      <span style="color:var(--muted)">dann</span>
+      <strong style="color:var(--cyan)">${wd.dann}</strong>
+      <button onclick="removeWennDann(${i})" style="background:none;border:none;color:var(--muted);cursor:pointer;margin-left:auto">✕</button>
+    </div>
+  `).join('');
+}
+
+function removeWennDann(idx) {
+  state.wennDann.splice(idx, 1);
+  saveState();
+  renderWennDann();
+}
+
+// ═══════════════════════════════════════════════════
+// JOURNAL & FEEDBACK
+// ═══════════════════════════════════════════════════
+function saveJournal() {
+  state.journalA = document.getElementById('journal-a')?.value || '';
+  state.journalB = document.getElementById('journal-b')?.value || '';
+  saveState();
+}
+
+function saveFeedback() {
+  const fields = ['daumen','zeige','mittel','ring','klein'];
+  fields.forEach(f => {
+    state.feedbackAB[f] = document.getElementById('ff-' + f + '-ab')?.value || '';
+    state.feedbackBA[f] = document.getElementById('ff-' + f + '-ba')?.value || '';
+  });
+  saveState();
+}
+
+function updateJournalNames() {
+  const na = document.getElementById('journal-name-a');
+  const nb = document.getElementById('journal-name-b');
+  if (na) na.textContent = state.personA || 'Lernperson A';
+  if (nb) nb.textContent = state.personB || 'Lernperson B';
+  const ja = document.getElementById('journal-a');
+  const jb = document.getElementById('journal-b');
+  if (ja && !ja.value) ja.value = state.journalA || '';
+  if (jb && !jb.value) jb.value = state.journalB || '';
+}
+
+function exportJournal() {
+  const text = `LERNJOURNAL – ${state.fach} ${state.thema}\nDatum: ${state.datum || 'nicht angegeben'}\n\n` +
+    `=== ${state.personA || 'Person A'} ===\n${state.journalA || '(leer)'}\n\n` +
+    `=== ${state.personB || 'Person B'} ===\n${state.journalB || '(leer)'}`;
+  downloadText(text, 'lernjournal.txt');
+}
+
+// ═══════════════════════════════════════════════════
+// LEHRPERSON
+// ═══════════════════════════════════════════════════
+function updateLehrerView() {
+  const done = state.phases.filter(Boolean).length;
+  const info = document.getElementById('lehrer-progress-info');
+  if (info) {
+    info.innerHTML = `
+      <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:0.75rem">
+        <span><strong style="color:#fff">Fach:</strong> ${state.fach || '–'}</span>
+        <span><strong style="color:#fff">Thema:</strong> ${state.thema || '–'}</span>
+        <span><strong style="color:#fff">Datum:</strong> ${state.datum || '–'}</span>
+        <span><strong style="color:#fff">Person A:</strong> ${state.personA || '–'}</span>
+        <span><strong style="color:#fff">Person B:</strong> ${state.personB || '–'}</span>
+      </div>
+      <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
+        ${[1,2,3,4,5].map(i => `<span class="tag ${state.phases[i-1]?'tag-emerald':'tag-rose'}">${state.phases[i-1]?'✓':'○'} Phase ${i}</span>`).join('')}
+      </div>
+      <div style="margin-top:0.5rem;font-size:0.8rem;color:var(--muted)">${done}/5 Phasen abgeschlossen (${Math.round(done/5*100)}%)</div>
+    `;
+  }
+  const ja = document.getElementById('lehrer-journal-a-content');
+  const jb = document.getElementById('lehrer-journal-b-content');
+  const na = document.getElementById('lehrer-journal-name-a');
+  const nb = document.getElementById('lehrer-journal-name-b');
+  if (ja) ja.textContent = state.journalA || 'Noch kein Journaleintrag vorhanden.';
+  if (jb) jb.textContent = state.journalB || 'Noch kein Journaleintrag vorhanden.';
+  if (na) na.textContent = state.personA || 'Person A';
+  if (nb) nb.textContent = state.personB || 'Person B';
+  const ka = document.getElementById('lehrer-kommentar-allgemein');
+  const kb = document.getElementById('lehrer-kommentar-a');
+  const kc = document.getElementById('lehrer-kommentar-b');
+  if (ka) ka.value = state.lehrerKommentarAllgemein || '';
+  if (kb) kb.value = state.lehrerKommentarA || '';
+  if (kc) kc.value = state.lehrerKommentarB || '';
+}
+
+function saveLehrerKommentare() {
+  state.lehrerKommentarAllgemein = document.getElementById('lehrer-kommentar-allgemein')?.value || '';
+  state.lehrerKommentarA = document.getElementById('lehrer-kommentar-a')?.value || '';
+  state.lehrerKommentarB = document.getElementById('lehrer-kommentar-b')?.value || '';
+  saveState();
+}
+
+function showLehrerTab(id) {
+  ['journal-a-view','journal-b-view'].forEach(t => {
+    document.getElementById(t)?.classList.toggle('hidden', t !== id);
+  });
+  document.querySelectorAll('.lehrer-tabs .lehrer-tab').forEach((btn, i) => {
+    btn.classList.toggle('active', i === (id === 'journal-a-view' ? 0 : 1));
+  });
+}
+
+function showLehrerKommentarTab(id) {
+  ['allgemein','person-a','person-b'].forEach(t => {
+    document.getElementById('kommentar-' + t)?.classList.toggle('hidden', t !== id);
+  });
+  const tabs = document.querySelectorAll('#page-lehrer .lehrer-block:last-of-type .lehrer-tab');
+  const map = { allgemein: 0, 'person-a': 1, 'person-b': 2 };
+  tabs.forEach((btn, i) => btn.classList.toggle('active', i === map[id]));
+}
+
+function exportLehrerFeedback() {
+  const text = `LEHRPERSON-FEEDBACK – ${state.fach} ${state.thema}\n\n` +
+    `=== Allgemeines Feedback ===\n${state.lehrerKommentarAllgemein || '(leer)'}\n\n` +
+    `=== Feedback für ${state.personA || 'Person A'} ===\n${state.lehrerKommentarA || '(leer)'}\n\n` +
+    `=== Feedback für ${state.personB || 'Person B'} ===\n${state.lehrerKommentarB || '(leer)'}`;
+  downloadText(text, 'lehrperson-feedback.txt');
+}
+
+// ═══════════════════════════════════════════════════
+// DRUCKANSICHT
+// ═══════════════════════════════════════════════════
+function updatePrintView() {
+  const done = state.phases.filter(Boolean).length;
+  const body = document.getElementById('print-body');
+  if (!body) return;
+  body.innerHTML = `
+    <h2 style="font-family:'Outfit',sans-serif;font-weight:900;color:#fff;margin-bottom:0.5rem">Prüfungsnavigator – Lernbericht</h2>
+    <p style="color:var(--muted);margin-bottom:1.5rem">Erstellt am ${new Date().toLocaleDateString('de-CH')}</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem">
+      <div><strong style="color:var(--muted)">Fach:</strong> <span style="color:#fff">${state.fach || '–'}</span></div>
+      <div><strong style="color:var(--muted)">Thema:</strong> <span style="color:#fff">${state.thema || '–'}</span></div>
+      <div><strong style="color:var(--muted)">Prüfungsdatum:</strong> <span style="color:#fff">${state.datum || '–'}</span></div>
+      <div><strong style="color:var(--muted)">Fortschritt:</strong> <span style="color:var(--emerald)">${done}/5 Phasen (${Math.round(done/5*100)}%)</span></div>
+      <div><strong style="color:var(--muted)">Person A:</strong> <span style="color:#fff">${state.personA || '–'}</span></div>
+      <div><strong style="color:var(--muted)">Person B:</strong> <span style="color:#fff">${state.personB || '–'}</span></div>
+    </div>
+    <hr style="border-color:var(--border);margin:1.5rem 0">
+    <h3 style="font-family:'Outfit',sans-serif;color:#fff;margin-bottom:0.75rem">📊 Phasen-Status</h3>
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1.5rem">
+      ${[1,2,3,4,5].map(i => `<span class="tag ${state.phases[i-1]?'tag-emerald':'tag-rose'}">${state.phases[i-1]?'✓':'○'} Phase ${i}</span>`).join('')}
+    </div>
+    <hr style="border-color:var(--border);margin:1.5rem 0">
+    <h3 style="font-family:'Outfit',sans-serif;color:#fff;margin-bottom:0.75rem">📓 Lernjournal</h3>
+    <p style="color:var(--muted);font-size:0.75rem;margin-bottom:0.4rem">${state.personA || 'Person A'}</p>
+    <div style="background:var(--bg);border-radius:8px;padding:1rem;border:1px solid var(--border);font-size:0.875rem;color:var(--text);white-space:pre-wrap;margin-bottom:1rem">${state.journalA || '(leer)'}</div>
+    <p style="color:var(--muted);font-size:0.75rem;margin-bottom:0.4rem">${state.personB || 'Person B'}</p>
+    <div style="background:var(--bg);border-radius:8px;padding:1rem;border:1px solid var(--border);font-size:0.875rem;color:var(--text);white-space:pre-wrap;margin-bottom:1.5rem">${state.journalB || '(leer)'}</div>
+    <hr style="border-color:var(--border);margin:1.5rem 0">
+    <h3 style="font-family:'Outfit',sans-serif;color:#fff;margin-bottom:0.75rem">💬 Feedback der Lehrperson</h3>
+    <p style="color:var(--muted);font-size:0.75rem;margin-bottom:0.4rem">Allgemeines Feedback</p>
+    <div style="background:var(--bg);border-radius:8px;padding:1rem;border:1px solid var(--border);font-size:0.875rem;color:var(--text);white-space:pre-wrap;margin-bottom:1rem">${state.lehrerKommentarAllgemein || '(noch kein Feedback)'}</div>
+    <p style="color:var(--muted);font-size:0.75rem;margin-bottom:0.4rem">Feedback für ${state.personA || 'Person A'}</p>
+    <div style="background:var(--bg);border-radius:8px;padding:1rem;border:1px solid var(--border);font-size:0.875rem;color:var(--text);white-space:pre-wrap;margin-bottom:1rem">${state.lehrerKommentarA || '(noch kein Feedback)'}</div>
+    <p style="color:var(--muted);font-size:0.75rem;margin-bottom:0.4rem">Feedback für ${state.personB || 'Person B'}</p>
+    <div style="background:var(--bg);border-radius:8px;padding:1rem;border:1px solid var(--border);font-size:0.875rem;color:var(--text);white-space:pre-wrap">${state.lehrerKommentarB || '(noch kein Feedback)'}</div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════
+// QUIZ
+// ═══════════════════════════════════════════════════
+const quizData = [
+  { q: 'Welche Lernstrategie ist laut Forschung am effektivsten?', opts: ['Nochmals lesen', 'Retrieval Practice (Abrufen)', 'Markieren', 'Zusammenfassen'], correct: 1 },
+  { q: 'Was bedeutet "Spaced Repetition"?', opts: ['Alles auf einmal lernen', 'Nur vor der Prüfung lernen', 'Stoff über mehrere Tage verteilt wiederholen', 'Mit Karteikarten lernen'], correct: 2 },
+  { q: 'Was ist die Feynman-Technik?', opts: ['Schnell lesen', 'Konzepte einfach erklären als ob man es einem Kind erklärt', 'Formeln auswendig lernen', 'Videos schauen'], correct: 1 },
+  { q: 'Was ist "Interleaving"?', opts: ['Immer dasselbe Thema üben', 'Zwischen verschiedenen Themen wechseln', 'Nur Übungsaufgaben lösen', 'Mit Musik lernen'], correct: 1 },
+  { q: 'Wie lange sollte eine Pomodoro-Fokus-Phase dauern?', opts: ['5 Minuten', '15 Minuten', '25 Minuten', '60 Minuten'], correct: 2 },
+];
+let quizAnswers = {};
+let quizSubmitted = false;
+
+function renderQuiz() {
+  const container = document.getElementById('quiz-container');
+  if (!container) return;
+  container.innerHTML = quizData.map((q, qi) => `
+    <div class="quiz-question">
+      <h4>${qi+1}. ${q.q}</h4>
+      <div class="quiz-options">
+        ${q.opts.map((opt, oi) => `
+          <div class="quiz-option" id="opt-${qi}-${oi}" onclick="selectOption(${qi},${oi})">
+            <div class="opt-letter">${String.fromCharCode(65+oi)}</div>
+            ${opt}
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function selectOption(qi, oi) {
+  if (quizSubmitted) return;
+  quizAnswers[qi] = oi;
+  quizData[qi].opts.forEach((_, i) => {
+    const el = document.getElementById(`opt-${qi}-${i}`);
+    if (el) el.classList.toggle('selected', i === oi);
+  });
+}
+
+function submitQuiz() {
+  if (quizSubmitted) return;
+  quizSubmitted = true;
+  let correct = 0;
+  quizData.forEach((q, qi) => {
+    q.opts.forEach((_, oi) => {
+      const el = document.getElementById(`opt-${qi}-${oi}`);
+      if (!el) return;
+      el.classList.remove('selected');
+      if (oi === q.correct) el.classList.add('correct');
+      else if (quizAnswers[qi] === oi) el.classList.add('wrong');
+    });
+    if (quizAnswers[qi] === q.correct) correct++;
+  });
+  const result = document.getElementById('quiz-result');
+  if (result) {
+    result.classList.remove('hidden');
+    result.innerHTML = `<div class="quiz-result">
+      <div class="score-big">${correct}/${quizData.length}</div>
+      <h3>${correct >= 4 ? '🎉 Ausgezeichnet!' : correct >= 3 ? '👍 Gut gemacht!' : '📚 Weiter üben!'}</h3>
+      <p>${correct >= 4 ? 'Du kennst die wichtigsten Lernstrategien sehr gut!' : 'Schau dir Phase 4 nochmals an und vertiefe die Lernstrategien.'}</p>
+    </div>`;
+  }
+}
+
+function resetQuiz() {
+  quizAnswers = {};
+  quizSubmitted = false;
+  renderQuiz();
+  const result = document.getElementById('quiz-result');
+  if (result) result.classList.add('hidden');
+}
+
+// ═══════════════════════════════════════════════════
+// COPY PROMPTS
+// ═══════════════════════════════════════════════════
+function copyPrompt(btn) {
+  const pre = btn.nextElementSibling;
+  navigator.clipboard.writeText(pre.textContent.trim()).then(() => {
+    btn.textContent = '✓ Kopiert!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Kopieren'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+// ═══════════════════════════════════════════════════
+// POMODORO
+// ═══════════════════════════════════════════════════
+let pomoInterval = null;
+let pomoSeconds = 25 * 60;
+let pomoRunning = false;
+let pomoIsBreak = false;
+
+function pomodoroToggle() {
+  if (pomoRunning) {
+    clearInterval(pomoInterval);
+    pomoRunning = false;
+    document.getElementById('pomo-start').textContent = '▶ Start';
+  } else {
+    pomoRunning = true;
+    document.getElementById('pomo-start').textContent = '⏸ Pause';
+    pomoInterval = setInterval(() => {
+      pomoSeconds--;
+      if (pomoSeconds <= 0) {
+        clearInterval(pomoInterval);
+        pomoRunning = false;
+        pomoIsBreak = !pomoIsBreak;
+        pomoSeconds = pomoIsBreak ? 5 * 60 : 25 * 60;
+        document.getElementById('pomo-label').textContent = pomoIsBreak ? 'Pause' : 'Fokus-Phase';
+        document.getElementById('pomo-start').textContent = '▶ Start';
+        playBeep();
+      }
+      updatePomoDisplay();
+    }, 1000);
+  }
+}
+
+function pomodoroReset() {
+  clearInterval(pomoInterval);
+  pomoRunning = false;
+  pomoIsBreak = false;
+  pomoSeconds = 25 * 60;
+  document.getElementById('pomo-start').textContent = '▶ Start';
+  document.getElementById('pomo-label').textContent = 'Fokus-Phase';
+  updatePomoDisplay();
+}
+
+function updatePomoDisplay() {
+  const m = Math.floor(pomoSeconds / 60).toString().padStart(2, '0');
+  const s = (pomoSeconds % 60).toString().padStart(2, '0');
+  const el = document.getElementById('pomo-display');
+  if (el) el.textContent = `${m}:${s}`;
+}
+
+function playBeep() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.frequency.value = 880;
+    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.8);
+    osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.8);
+  } catch(e) {}
+}
+
+// ═══════════════════════════════════════════════════
+// CONFETTI
+// ═══════════════════════════════════════════════════
+function triggerConfetti() {
+  const canvas = document.getElementById('confetti-canvas');
+  if (!canvas) return;
+  canvas.classList.remove('hidden');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const ctx = canvas.getContext('2d');
+  const particles = Array.from({length: 120}, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * -canvas.height,
+    r: Math.random() * 8 + 4,
+    d: Math.random() * 2 + 1,
+    color: ['#22d3ee','#34d399','#fbbf24','#a78bfa','#fb7185'][Math.floor(Math.random()*5)],
+    tilt: Math.random() * 10 - 5,
+    tiltAngle: 0
+  }));
+  let frame = 0;
+  const animate = () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => {
+      p.tiltAngle += 0.05;
+      p.y += p.d;
+      p.tilt = Math.sin(p.tiltAngle) * 12;
+      ctx.beginPath();
+      ctx.fillStyle = p.color;
+      ctx.ellipse(p.x + p.tilt, p.y, p.r, p.r/2, p.tiltAngle, 0, Math.PI*2);
+      ctx.fill();
+    });
+    frame++;
+    if (frame < 200) requestAnimationFrame(animate);
+    else canvas.classList.add('hidden');
+  };
+  animate();
+}
+
+// ═══════════════════════════════════════════════════
+// UTILITY
+// ═══════════════════════════════════════════════════
+function downloadText(text, filename) {
+  const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ═══════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  loadState();
+  renderQuiz();
+  renderTracker();
+  renderWennDann();
+  renderLernziele();
+  updateProgress();
+});
+</script>
+</body>
+</html>
