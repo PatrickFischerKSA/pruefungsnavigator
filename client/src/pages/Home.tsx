@@ -8,7 +8,7 @@ import Layout from "@/components/Layout";
 import ProgressBar from "@/components/ProgressBar";
 import FachSelector from "@/components/FachSelector";
 import { useApp } from "@/contexts/AppContext";
-import { Upload, Brain, FlaskConical, BookOpen, Sparkles, ArrowRight, Users, Clock, Target, Zap, RotateCcw } from "lucide-react";
+import { Upload, Brain, FlaskConical, BookOpen, Sparkles, ArrowRight, Users, Clock, Target, Zap, RotateCcw, Archive, Printer } from "lucide-react";
 import { toast } from "sonner";
 
 const phases = [
@@ -107,7 +107,21 @@ const stats = [
 ];
 
 export default function Home() {
-  const { state, resetAll } = useApp();
+  const { state, resetAll, archiveAndNewSession } = useApp();
+
+  const handleNewSession = () => {
+    const hasContent = state.completedPhases.length > 0 ||
+      state.journal.gelernt || state.journal.wasHatFunktioniert ||
+      state.lerntracker.some(Boolean);
+    if (!hasContent) {
+      toast.info("Keine Daten zum Archivieren. Starte einfach los!");
+      return;
+    }
+    if (window.confirm("Aktuelle Session archivieren und neu starten?")) {
+      archiveAndNewSession();
+      toast.success("Session archiviert! Neue Session gestartet.");
+    }
+  };
 
   const handleReset = () => {
     if (window.confirm("Möchtest du wirklich den gesamten Fortschritt zurücksetzen? Diese Aktion kann nicht rückgängig gemacht werden.")) {
@@ -163,6 +177,18 @@ export default function Home() {
                 <Link href="/lehrer">
                   <button className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-white/15 hover:border-white/30 text-slate-300 hover:text-white font-semibold text-sm transition-all duration-200 bg-white/5" style={{ fontFamily: "Outfit, sans-serif" }}>
                     Lehrperson-Ansicht
+                  </button>
+                </Link>
+                <Link href="/sessions">
+                  <button className="inline-flex items-center gap-2 px-4 py-3 rounded-xl border border-violet-500/30 hover:border-violet-500/50 text-violet-300 hover:text-violet-200 font-semibold text-sm transition-all duration-200 bg-violet-500/8" style={{ fontFamily: "Outfit, sans-serif" }}>
+                    <Archive size={14} />
+                    Sessions
+                  </button>
+                </Link>
+                <Link href="/print">
+                  <button className="inline-flex items-center gap-2 px-4 py-3 rounded-xl border border-white/10 hover:border-white/20 text-slate-400 hover:text-white font-semibold text-sm transition-all duration-200 bg-white/3" style={{ fontFamily: "Outfit, sans-serif" }}>
+                    <Printer size={14} />
+                    Drucken
                   </button>
                 </Link>
               </div>

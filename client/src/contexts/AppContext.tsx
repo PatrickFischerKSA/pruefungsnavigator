@@ -6,6 +6,7 @@
    - Lernjournal-Einträge
    - Lerntracker (21 Tage)
    - Abgehakte Schritte
+   - Session-Archiv (mehrere Lernsessions)
    ============================================================ */
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
 
@@ -105,6 +106,18 @@ export interface JournalEntry {
   wasBehaltIchBei: string;
 }
 
+export interface ArchivedSession {
+  id: string;
+  archivedAt: string;
+  selectedFachId: string;
+  pruefungsthema: string;
+  pruefungsdatum: string;
+  completedPhases: number[];
+  lerntracker: boolean[];
+  journal: JournalEntry;
+  fingerFeedback: Record<string, string>;
+}
+
 export interface AppState {
   // Fach
   selectedFachId: string;
@@ -122,25 +135,30 @@ export interface AppState {
   pruefungsthema: string;
   // Prüfungsdatum
   pruefungsdatum: string;
+  // Archivierte Sessions
+  archivedSessions: ArchivedSession[];
 }
+
+const DEFAULT_JOURNAL: JournalEntry = {
+  date: new Date().toISOString().slice(0, 10),
+  gelernt: "",
+  schwierigkeit: "",
+  naechsterSchritt: "",
+  wasHatFunktioniert: "",
+  wasAendereIch: "",
+  wasBehaltIchBei: "",
+};
 
 const DEFAULT_STATE: AppState = {
   selectedFachId: "allgemein",
   completedPhases: [],
   checkedItems: [],
   lerntracker: new Array(21).fill(false),
-  journal: {
-    date: new Date().toISOString().slice(0, 10),
-    gelernt: "",
-    schwierigkeit: "",
-    naechsterSchritt: "",
-    wasHatFunktioniert: "",
-    wasAendereIch: "",
-    wasBehaltIchBei: "",
-  },
+  journal: { ...DEFAULT_JOURNAL },
   fingerFeedback: {},
   pruefungsthema: "",
   pruefungsdatum: "",
+  archivedSessions: [],
 };
 
 // ─── Context ─────────────────────────────────────────────────────────────────
@@ -157,25 +175,40 @@ interface AppContextValue {
   updateJournal: (field: keyof JournalEntry, value: string) => void;
   setFingerFeedback: (label: string, value: string) => void;
   resetAll: () => void;
+  archiveAndNewSession: () => void;
+  deleteArchivedSession: (id: string) => void;
   progressPercent: number;
 }
 
 const AppContext = createContext<AppContextValue | null>(null);
 
-const STORAGE_KEY = "pruefungsnavigator_state_v2";
+const STORAGE_KEY = "pruefungsnavigator_state_v3";
 
 function loadState(): AppState {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
+    // Migration von v2
+    const rawV2 = localStorage.getItem("pruefungsnavigator_state_v2");
+    if (!raw && rawV2) {
+      const parsed = JSON.parse(rawV2) as Partial<AppState>;
+      return {
+        ...DEFAULT_STATE,
+        ...parsed,
+        journal: { ...DEFAULT_JOURNAL, ...(parsed.journal ?? {}) },
+        lerntracker: Array.isArray(parsed.lerntracker) && parsed.lerntracker.length === 21
+          ? parsed.lerntracker : DEFAULT_STATE.lerntracker,
+        archivedSessions: [],
+      };
+    }
     if (!raw) return DEFAULT_STATE;
     const parsed = JSON.parse(raw) as Partial<AppState>;
     return {
       ...DEFAULT_STATE,
       ...parsed,
-      journal: { ...DEFAULT_STATE.journal, ...(parsed.journal ?? {}) },
+      journal: { ...DEFAULT_JOURNAL, ...(parsed.journal ?? {}) },
       lerntracker: Array.isArray(parsed.lerntracker) && parsed.lerntracker.length === 21
-        ? parsed.lerntracker
-        : DEFAULT_STATE.lerntracker,
+        ? parsed.lerntracker : DEFAULT_STATE.lerntracker,
+      archivedSessions: Array.isArray(parsed.archivedSessions) ? parsed.archivedSessions : [],
     };
   } catch {
     return DEFAULT_STATE;
@@ -262,6 +295,35 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const resetAll = useCallback(() => {
     setState(DEFAULT_STATE);
     localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem("pruefungsnavigator_state_v2");
+  }, []);
+
+  // Aktuelle Session archivieren und neue starten
+  const archiveAndNewSession = useCallback(() => {
+    setState((prev) => {
+      const archived: ArchivedSession = {
+        id: Date.now().toString(),
+        archivedAt: new Date().toISOString(),
+        selectedFachId: prev.selectedFachId,
+        pruefungsthema: prev.pruefungsthema,
+        pruefungsdatum: prev.pruefungsdatum,
+        completedPhases: prev.completedPhases,
+        lerntracker: prev.lerntracker,
+        journal: prev.journal,
+        fingerFeedback: prev.fingerFeedback,
+      };
+      return {
+        ...DEFAULT_STATE,
+        archivedSessions: [archived, ...prev.archivedSessions],
+      };
+    });
+  }, []);
+
+  const deleteArchivedSession = useCallback((id: string) => {
+    setState((prev) => ({
+      ...prev,
+      archivedSessions: prev.archivedSessions.filter((s) => s.id !== id),
+    }));
   }, []);
 
   const progressPercent = Math.round((state.completedPhases.length / 5) * 100);
@@ -280,6 +342,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       updateJournal,
       setFingerFeedback,
       resetAll,
+      archiveAndNewSession,
+      deleteArchivedSession,
       progressPercent,
     }}>
       {children}

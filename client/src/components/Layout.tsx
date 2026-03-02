@@ -1,14 +1,17 @@
 /* ============================================================
    LAYOUT – Prüfungsnavigator
    Design: Functional Futurism – Persistent Sidebar + Main Panel
+   Erweiterungen: Pomodoro-Timer, Sessions-Link, Druckansicht-Link
    ============================================================ */
 import { Link, useLocation } from "wouter";
 import { useState } from "react";
 import {
   Upload, Brain, FlaskConical, BookOpen, Sparkles,
   LayoutDashboard, GraduationCap, ChevronLeft, ChevronRight,
-  Menu, X
+  Menu, Printer, Archive
 } from "lucide-react";
+import PomodoroTimer from "./PomodoroTimer";
+import { useApp } from "@/contexts/AppContext";
 
 const navItems = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard, color: "text-cyan-400" },
@@ -20,10 +23,16 @@ const navItems = [
   { href: "/lehrer", label: "Lehrperson-Ansicht", icon: GraduationCap, color: "text-slate-400" },
 ];
 
+const extraItems = [
+  { href: "/sessions", label: "Lernsessions", icon: Archive, color: "text-violet-400" },
+  { href: "/print", label: "Druckansicht", icon: Printer, color: "text-slate-400" },
+];
+
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { state } = useApp();
 
   return (
     <div className="min-h-screen flex bg-background">
@@ -61,9 +70,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
         {/* Navigation */}
         <nav className="flex-1 py-4 overflow-y-auto">
+          {/* Hauptnavigation */}
           {navItems.map((item) => {
             const isActive = location === item.href;
             const Icon = item.icon;
+            const isDone = item.phase ? state.completedPhases.includes(item.phase) : false;
             return (
               <Link key={item.href} href={item.href}>
                 <div
@@ -83,7 +94,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                       ${isActive ? "bg-cyan-400" : "bg-transparent group-hover:bg-white/20"}
                     `} />
                   )}
-                  <Icon size={16} className={`flex-shrink-0 ${isActive ? "text-cyan-400" : item.color} transition-colors`} />
+                  <div className="relative flex-shrink-0">
+                    <Icon size={16} className={`${isActive ? "text-cyan-400" : item.color} transition-colors`} />
+                    {isDone && (
+                      <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-500 border border-background flex items-center justify-center">
+                        <span className="text-white" style={{ fontSize: "0.45rem" }}>✓</span>
+                      </span>
+                    )}
+                  </div>
                   {!collapsed && (
                     <span className={`text-sm font-medium truncate ${isActive ? "text-white" : "text-slate-300"}`} style={{ fontFamily: "Outfit, sans-serif" }}>
                       {item.label}
@@ -93,7 +111,43 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               </Link>
             );
           })}
+
+          {/* Trennlinie */}
+          {!collapsed && (
+            <div className="mx-4 my-3 border-t border-white/8" />
+          )}
+
+          {/* Extra-Navigation */}
+          {extraItems.map((item) => {
+            const isActive = location === item.href;
+            const Icon = item.icon;
+            return (
+              <Link key={item.href} href={item.href}>
+                <div
+                  className={`
+                    flex items-center gap-3 px-4 py-2 mx-2 mb-1 rounded-lg
+                    transition-all duration-200
+                    ${isActive
+                      ? "bg-violet-500/15 border border-violet-500/30"
+                      : "hover:bg-white/5 border border-transparent"
+                    }
+                  `}
+                  onClick={() => setMobileOpen(false)}
+                >
+                  <Icon size={14} className={`flex-shrink-0 ${isActive ? "text-violet-400" : item.color} transition-colors`} />
+                  {!collapsed && (
+                    <span className={`text-xs font-medium truncate ${isActive ? "text-violet-300" : "text-slate-400"}`} style={{ fontFamily: "Outfit, sans-serif" }}>
+                      {item.label}
+                    </span>
+                  )}
+                </div>
+              </Link>
+            );
+          })}
         </nav>
+
+        {/* Pomodoro Timer */}
+        <PomodoroTimer collapsed={collapsed} />
 
         {/* Collapse toggle */}
         <div className="p-3 border-t border-white/8">
@@ -101,7 +155,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             onClick={() => setCollapsed(!collapsed)}
             className="hidden lg:flex w-full items-center justify-center gap-2 py-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white transition-colors text-xs"
           >
-            {collapsed ? <ChevronRight size={14} /> : <><ChevronLeft size={14} /><span>Einklappen</span></>}
+            {collapsed ? <ChevronRight size={14} /> : <><ChevronLeft size={14} /><span style={{ fontFamily: "Outfit, sans-serif" }}>Einklappen</span></>}
           </button>
         </div>
       </aside>

@@ -11,6 +11,8 @@ import Phase3Quiz from "./pages/Phase3Quiz";
 import Phase4Strategien from "./pages/Phase4Strategien";
 import Phase5Reflexion from "./pages/Phase5Reflexion";
 import LehrerView from "./pages/LehrerView";
+import Sessions from "./pages/Sessions";
+import PrintView from "./pages/PrintView";
 import NotFound from "./pages/NotFound";
 
 function Router() {
@@ -23,6 +25,8 @@ function Router() {
       <Route path="/phase/4" component={Phase4Strategien} />
       <Route path="/phase/5" component={Phase5Reflexion} />
       <Route path="/lehrer" component={LehrerView} />
+      <Route path="/sessions" component={Sessions} />
+      <Route path="/print" component={PrintView} />
       <Route component={NotFound} />
     </Switch>
   );
