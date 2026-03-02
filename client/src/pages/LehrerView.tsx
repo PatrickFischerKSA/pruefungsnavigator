@@ -5,7 +5,7 @@
    ============================================================ */
 import { useState } from "react";
 import Layout from "@/components/Layout";
-import { useApp } from "@/contexts/AppContext";
+import { useApp, type LehrpersonKommentar } from "@/contexts/AppContext";
 import {
   GraduationCap, ExternalLink, Copy, CheckCircle, Eye,
   MessageSquare, FileText, Lightbulb, BookOpen, ClipboardList,
@@ -18,18 +18,7 @@ const copyText = (text: string) => {
   navigator.clipboard.writeText(text).then(() => toast.success("Text kopiert!"));
 };
 
-const STORAGE_KEY_COMMENTS = "pruefungsnavigator_lehrer_kommentare";
 
-function loadKommentare(): Record<string, string> {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY_COMMENTS);
-    return raw ? JSON.parse(raw) : {};
-  } catch { return {}; }
-}
-
-function saveKommentare(k: Record<string, string>) {
-  try { localStorage.setItem(STORAGE_KEY_COMMENTS, JSON.stringify(k)); } catch {}
-}
 
 const toolsForTeacher = [
   {
@@ -138,12 +127,22 @@ const phaseOverview = [
   { num: 5, title: "Reflexion", href: "/phase/5", color: "rose", icon: MessageSquare, check: "Lernjournal ausgefüllt und geteilt?" },
 ];
 
-export default function LehrerView() {
-  const { state, selectedFach, progressPercent } = useApp();
+const KOMMENTAR_FELDER: { key: keyof LehrpersonKommentar; label: string; color: string }[] = [
+  { key: "fortschritt", label: "Fortschritt & Engagement", color: "cyan" },
+  { key: "kiNutzung", label: "KI-Nutzung", color: "emerald" },
+  { key: "lernstrategien", label: "Lernstrategien", color: "purple" },
+  { key: "reflexion", label: "Reflexionstiefe", color: "rose" },
+  { key: "zusammenarbeit", label: "Zusammenarbeit", color: "amber" },
+  { key: "personA", label: "Persönliches Feedback Person A", color: "teal" },
+  { key: "personB", label: "Persönliches Feedback Person B", color: "teal" },
+  { key: "allgemein", label: "Allgemeines Feedback", color: "slate" },
+];
 
-  // Kommentare (lokal gespeichert, für Lehrperson)
-  const [kommentare, setKommentare] = useState<Record<string, string>>(loadKommentare);
-  const [kommentarInput, setKommentarInput] = useState<Record<string, string>>({});
+export default function LehrerView() {
+  const { state, selectedFach, progressPercent, updateLehrpersonKommentar } = useApp();
+  const kommentare = state.lehrpersonKommentar;
+
+  const [kommentarInput, setKommentarInput] = useState<Partial<Record<keyof LehrpersonKommentar, string>>>({});
   const [showJournalA, setShowJournalA] = useState(false);
   const [showJournalB, setShowJournalB] = useState(false);
   const [showFeedbackTemplates, setShowFeedbackTemplates] = useState(false);
@@ -163,21 +162,16 @@ export default function LehrerView() {
     rose: "text-rose-400", teal: "text-teal-400",
   };
 
-  const addKommentar = (key: string) => {
+  const addKommentar = (key: keyof LehrpersonKommentar) => {
     const text = kommentarInput[key]?.trim();
     if (!text) return;
-    const updated = { ...kommentare, [key]: text };
-    setKommentare(updated);
-    saveKommentare(updated);
+    updateLehrpersonKommentar(key, text);
     setKommentarInput((p) => ({ ...p, [key]: "" }));
     toast.success("Kommentar gespeichert!");
   };
 
-  const deleteKommentar = (key: string) => {
-    const updated = { ...kommentare };
-    delete updated[key];
-    setKommentare(updated);
-    saveKommentare(updated);
+  const deleteKommentar = (key: keyof LehrpersonKommentar) => {
+    updateLehrpersonKommentar(key, "");
     toast.success("Kommentar gelöscht");
   };
 
@@ -335,33 +329,29 @@ export default function LehrerView() {
               <h2 className="text-white font-bold text-sm" style={{ fontFamily: "Outfit, sans-serif" }}>Kommentare der Lehrperson</h2>
               <p className="text-slate-400 text-xs">Kommentare werden lokal gespeichert und können exportiert werden</p>
             </div>
-            <span className="ml-auto text-xs text-slate-500">{Object.keys(kommentare).length} Kommentar(e)</span>
+            <span className="ml-auto text-xs text-slate-500">{Object.values(kommentare).filter(Boolean).length} Kommentar(e)</span>
           </div>
           <div className="p-5 space-y-4" style={{ background: "oklch(0.175 0.028 264.695)" }}>
-            {/* Kommentar zu Gesamtfortschritt */}
-            {[
-              { key: "fortschritt", label: "Gesamtfortschritt & Engagement", color: "cyan" },
-              { key: "ki_nutzung", label: "KI-Nutzung & Prompts", color: "emerald" },
-              { key: "lernstrategien", label: "Lernstrategien & Planung", color: "purple" },
-              { key: "reflexion", label: "Reflexionstiefe & Lernjournal", color: "rose" },
-              { key: "zusammenarbeit", label: "Zusammenarbeit im Lernteam", color: "amber" },
-            ].map((item) => (
+            {KOMMENTAR_FELDER.filter(f => !["personA","personB"].includes(f.key)).map((item) => {
+              const val = kommentare[item.key];
+              const inputVal = kommentarInput[item.key] || "";
+              return (
               <div key={item.key} className="border border-white/8 rounded-xl overflow-hidden">
                 <div className="flex items-center gap-2 px-4 py-2.5 border-b border-white/8" style={{ background: "oklch(0.208 0.028 264.364)" }}>
-                  <span className={`text-xs font-semibold ${iconColorMap[item.color]}`} style={{ fontFamily: "Outfit, sans-serif" }}>{item.label}</span>
-                  {kommentare[item.key] && (
+                  <span className={`text-xs font-semibold ${iconColorMap[item.color] || "text-slate-400"}`} style={{ fontFamily: "Outfit, sans-serif" }}>{item.label}</span>
+                  {val && (
                     <button onClick={() => deleteKommentar(item.key)} className="ml-auto text-slate-600 hover:text-rose-400 transition-colors">
                       <Trash2 size={11} />
                     </button>
                   )}
                 </div>
                 <div className="p-3" style={{ background: "oklch(0.175 0.028 264.695)" }}>
-                  {kommentare[item.key] ? (
+                  {val ? (
                     <div>
-                      <p className="text-slate-300 text-xs leading-relaxed mb-2 whitespace-pre-wrap">{kommentare[item.key]}</p>
+                      <p className="text-slate-300 text-xs leading-relaxed mb-2 whitespace-pre-wrap">{val}</p>
                       <button
                         onClick={() => {
-                          setKommentarInput((p) => ({ ...p, [item.key]: kommentare[item.key] }));
+                          setKommentarInput((p) => ({ ...p, [item.key]: val }));
                           deleteKommentar(item.key);
                         }}
                         className="text-xs text-slate-500 hover:text-slate-300 transition-colors"
@@ -373,7 +363,7 @@ export default function LehrerView() {
                   ) : (
                     <div className="flex gap-2">
                       <textarea
-                        value={kommentarInput[item.key] || ""}
+                        value={inputVal}
                         onChange={(e) => setKommentarInput((p) => ({ ...p, [item.key]: e.target.value }))}
                         placeholder={`Kommentar zu ${item.label} eingeben…`}
                         rows={2}
@@ -381,7 +371,7 @@ export default function LehrerView() {
                       />
                       <button
                         onClick={() => addKommentar(item.key)}
-                        disabled={!kommentarInput[item.key]?.trim()}
+                        disabled={!inputVal.trim()}
                         className="px-3 py-2 rounded-lg bg-cyan-500/15 border border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/25 disabled:opacity-30 disabled:cursor-not-allowed transition-all flex-shrink-0"
                       >
                         <Send size={13} />
@@ -390,7 +380,8 @@ export default function LehrerView() {
                   )}
                 </div>
               </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
@@ -423,21 +414,21 @@ export default function LehrerView() {
                 {/* Kommentar zu Person A */}
                 <div className="pt-2 border-t border-white/8">
                   <p className="text-cyan-400 text-xs font-semibold mb-2" style={{ fontFamily: "Outfit, sans-serif" }}>Kommentar zu {state.personA}:</p>
-                  {kommentare["person_a"] ? (
+                  {kommentare["personA"] ? (
                     <div className="flex items-start gap-2">
-                      <p className="text-slate-300 text-xs leading-relaxed flex-1">{kommentare["person_a"]}</p>
-                      <button onClick={() => deleteKommentar("person_a")} className="text-slate-600 hover:text-rose-400 transition-colors flex-shrink-0"><Trash2 size={11} /></button>
+                      <p className="text-slate-300 text-xs leading-relaxed flex-1">{kommentare["personA"]}</p>
+                      <button onClick={() => deleteKommentar("personA")} className="text-slate-600 hover:text-rose-400 transition-colors flex-shrink-0"><Trash2 size={11} /></button>
                     </div>
                   ) : (
                     <div className="flex gap-2">
                       <input
-                        value={kommentarInput["person_a"] || ""}
-                        onChange={(e) => setKommentarInput((p) => ({ ...p, person_a: e.target.value }))}
-                        onKeyDown={(e) => e.key === "Enter" && addKommentar("person_a")}
+                        value={kommentarInput["personA"] || ""}
+                        onChange={(e) => setKommentarInput((p) => ({ ...p, personA: e.target.value }))}
+                        onKeyDown={(e) => e.key === "Enter" && addKommentar("personA")}
                         placeholder="Kommentar eingeben…"
                         className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 text-white text-xs placeholder-slate-600 focus:outline-none focus:border-cyan-500/40 transition-colors"
                       />
-                      <button onClick={() => addKommentar("person_a")} className="px-2.5 py-1.5 rounded-lg bg-cyan-500/15 border border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/25 transition-all">
+                      <button onClick={() => addKommentar("personA")} className="px-2.5 py-1.5 rounded-lg bg-cyan-500/15 border border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/25 transition-all">
                         <Send size={11} />
                       </button>
                     </div>
@@ -474,21 +465,21 @@ export default function LehrerView() {
                 {/* Kommentar zu Person B */}
                 <div className="pt-2 border-t border-white/8">
                   <p className="text-emerald-400 text-xs font-semibold mb-2" style={{ fontFamily: "Outfit, sans-serif" }}>Kommentar zu {state.personB}:</p>
-                  {kommentare["person_b"] ? (
+                  {kommentare["personB"] ? (
                     <div className="flex items-start gap-2">
-                      <p className="text-slate-300 text-xs leading-relaxed flex-1">{kommentare["person_b"]}</p>
-                      <button onClick={() => deleteKommentar("person_b")} className="text-slate-600 hover:text-rose-400 transition-colors flex-shrink-0"><Trash2 size={11} /></button>
+                      <p className="text-slate-300 text-xs leading-relaxed flex-1">{kommentare["personB"]}</p>
+                      <button onClick={() => deleteKommentar("personB")} className="text-slate-600 hover:text-rose-400 transition-colors flex-shrink-0"><Trash2 size={11} /></button>
                     </div>
                   ) : (
                     <div className="flex gap-2">
                       <input
-                        value={kommentarInput["person_b"] || ""}
-                        onChange={(e) => setKommentarInput((p) => ({ ...p, person_b: e.target.value }))}
-                        onKeyDown={(e) => e.key === "Enter" && addKommentar("person_b")}
+                        value={kommentarInput["personB"] || ""}
+                        onChange={(e) => setKommentarInput((p) => ({ ...p, personB: e.target.value }))}
+                        onKeyDown={(e) => e.key === "Enter" && addKommentar("personB")}
                         placeholder="Kommentar eingeben…"
                         className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 text-white text-xs placeholder-slate-600 focus:outline-none focus:border-emerald-500/40 transition-colors"
                       />
-                      <button onClick={() => addKommentar("person_b")} className="px-2.5 py-1.5 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/25 transition-all">
+                      <button onClick={() => addKommentar("personB")} className="px-2.5 py-1.5 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/25 transition-all">
                         <Send size={11} />
                       </button>
                     </div>

@@ -17,6 +17,17 @@ export default function PrintView() {
 
   const fingerLabels = ["Daumen – Was lief gut?", "Zeigefinger – Was war wichtig?", "Mittelfinger – Was war schwierig?", "Ringfinger – Was nehme ich mit?", "Kleiner Finger – Was fehlt noch?"];
 
+  const kommentarFelder: { key: keyof typeof state.lehrpersonKommentar; label: string }[] = [
+    { key: "fortschritt", label: "Fortschritt & Engagement" },
+    { key: "kiNutzung", label: "KI-Nutzung" },
+    { key: "lernstrategien", label: "Lernstrategien" },
+    { key: "reflexion", label: "Reflexionstiefe" },
+    { key: "zusammenarbeit", label: "Zusammenarbeit" },
+    { key: "allgemein", label: "Allgemeines Feedback" },
+  ];
+
+  const hasKommentare = Object.values(state.lehrpersonKommentar).some(Boolean);
+
   return (
     <>
       {/* Drucksteuerung – nur auf Bildschirm sichtbar */}
@@ -218,14 +229,49 @@ export default function PrintView() {
             </div>
           </section>
 
-          {/* Lehrperson-Kommentar (leer für Ausdruck) */}
+          {/* Lehrperson-Kommentare */}
           <section className="mb-4">
             <h2 className="text-lg font-bold text-gray-800 mb-3 border-b border-gray-200 pb-1" style={{ fontFamily: "Outfit, sans-serif" }}>
-              Kommentar Lehrperson
+              Feedback der Lehrperson
             </h2>
-            <div className="border border-gray-200 rounded-lg p-4 min-h-[6rem] bg-gray-50">
-              <p className="text-gray-300 text-sm italic">Platz für Rückmeldung der Lehrperson</p>
-            </div>
+            {hasKommentare ? (
+              <div className="space-y-4">
+                {/* Persönliche Kommentare zu Person A & B */}
+                {(state.lehrpersonKommentar.personA || state.lehrpersonKommentar.personB) && (
+                  <div className="grid grid-cols-2 gap-4 mb-2">
+                    {state.lehrpersonKommentar.personA && (
+                      <div>
+                        <p className="text-gray-500 text-xs font-semibold uppercase tracking-wide mb-1">Feedback an {state.personA}</p>
+                        <div className="p-3 border border-gray-200 rounded-lg bg-gray-50 text-sm text-gray-700 whitespace-pre-wrap">{state.lehrpersonKommentar.personA}</div>
+                      </div>
+                    )}
+                    {state.lehrpersonKommentar.personB && (
+                      <div>
+                        <p className="text-gray-500 text-xs font-semibold uppercase tracking-wide mb-1">Feedback an {state.personB}</p>
+                        <div className="p-3 border border-gray-200 rounded-lg bg-gray-50 text-sm text-gray-700 whitespace-pre-wrap">{state.lehrpersonKommentar.personB}</div>
+                      </div>
+                    )}
+                  </div>
+                )}
+                {/* Kategorie-Kommentare */}
+                <div className="space-y-3">
+                  {kommentarFelder.map(({ key, label }) => {
+                    const val = state.lehrpersonKommentar[key];
+                    if (!val) return null;
+                    return (
+                      <div key={key}>
+                        <p className="text-gray-500 text-xs font-semibold uppercase tracking-wide mb-1">{label}</p>
+                        <div className="p-3 border border-gray-200 rounded-lg bg-gray-50 text-sm text-gray-700 whitespace-pre-wrap">{val}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : (
+              <div className="border border-gray-200 rounded-lg p-4 min-h-[6rem] bg-gray-50">
+                <p className="text-gray-300 text-sm italic">Noch kein Feedback eingetragen (via Lehrperson-Ansicht)</p>
+              </div>
+            )}
           </section>
 
           {/* Footer */}

@@ -3,9 +3,10 @@
    Design: Functional Futurism
    Inhalt: KI-Prompts, Demo-Quiz, Auswertung, Quizlet/Kahoot
    ============================================================ */
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Layout from "@/components/Layout";
 import { useApp } from "@/contexts/AppContext";
+import { FACH_FRAGEN } from "@/lib/fachFragen";
 import {
   FlaskConical, Copy, ExternalLink, ArrowRight, ArrowLeft,
   CheckCircle, XCircle, RotateCcw, Lightbulb, ChevronDown,
@@ -224,6 +225,12 @@ export default function Phase3Quiz() {
   const [showAllAufgaben, setShowAllAufgaben] = useState(false);
   const [activePromptTab, setActivePromptTab] = useState(0);
 
+  // Fach-spezifische Demo-Fragen laden
+  const activeFragen = useMemo(() => {
+    const fachFragen = FACH_FRAGEN[selectedFach.id];
+    return fachFragen ?? FACH_FRAGEN["allgemein"];
+  }, [selectedFach.id]);
+
   const promptTemplates = buildProbeprüfungsPrompts(selectedFach.label, state.pruefungsthema, selectedFach.pruefungsformat);
   const visibleAufgaben = showAllAufgaben ? AUFGABEN_P3 : AUFGABEN_P3.slice(0, 3);
 
@@ -233,16 +240,16 @@ export default function Phase3Quiz() {
   };
 
   const handleSubmit = () => {
-    if (Object.keys(answers).length < demoQuestions.length) {
-      toast.error(`Bitte beantworte alle ${demoQuestions.length} Fragen, bevor du auswerten lässt.`);
+    if (Object.keys(answers).length < activeFragen.length) {
+      toast.error(`Bitte beantworte alle ${activeFragen.length} Fragen, bevor du auswerten lässt.`);
       return;
     }
     setSubmitted(true);
-    const correct = demoQuestions.filter((q) => answers[q.id] === q.correct).length;
-    const pct = Math.round((correct / demoQuestions.length) * 100);
-    if (pct >= 75) toast.success(`${correct}/${demoQuestions.length} richtig (${pct}%) – Sehr gut!`);
-    else if (pct >= 50) toast.info(`${correct}/${demoQuestions.length} richtig (${pct}%) – Gut, aber noch Lücken vorhanden.`);
-    else toast.error(`${correct}/${demoQuestions.length} richtig (${pct}%) – Mehr Übung nötig!`);
+    const correct = activeFragen.filter((q) => answers[q.id] === q.correct).length;
+    const pct = Math.round((correct / activeFragen.length) * 100);
+    if (pct >= 75) toast.success(`${correct}/${activeFragen.length} richtig (${pct}%) – Sehr gut!`);
+    else if (pct >= 50) toast.info(`${correct}/${activeFragen.length} richtig (${pct}%) – Gut, aber noch Lücken vorhanden.`);
+    else toast.error(`${correct}/${activeFragen.length} richtig (${pct}%) – Mehr Übung nötig!`);
   };
 
   const handleReset = () => {
@@ -250,12 +257,12 @@ export default function Phase3Quiz() {
     setSubmitted(false);
   };
 
-  const correctCount = submitted ? demoQuestions.filter((q) => answers[q.id] === q.correct).length : 0;
-  const score = submitted ? Math.round((correctCount / demoQuestions.length) * 100) : 0;
+  const correctCount = submitted ? activeFragen.filter((q) => answers[q.id] === q.correct).length : 0;
+  const score = submitted ? Math.round((correctCount / activeFragen.length) * 100) : 0;
 
-  const kategorien = Array.from(new Set(demoQuestions.map(q => q.kategorie)));
+  const kategorien = Array.from(new Set(activeFragen.map(q => q.kategorie)));
   const kategorieStats = kategorien.map(kat => {
-    const fragen = demoQuestions.filter(q => q.kategorie === kat);
+    const fragen = activeFragen.filter(q => q.kategorie === kat);
     const richtig = submitted ? fragen.filter(q => answers[q.id] === q.correct).length : 0;
     return { kat, total: fragen.length, richtig };
   });
@@ -388,13 +395,13 @@ export default function Phase3Quiz() {
           <div className="flex items-center gap-3 px-5 py-4 border-b border-white/8" style={{ background: "oklch(0.208 0.028 264.364)" }}>
             <FlaskConical size={16} className="text-cyan-400" />
             <div>
-              <h3 className="text-white font-bold text-sm" style={{ fontFamily: "Outfit, sans-serif" }}>Demo-Quiz: Lernstrategien & KI</h3>
-              <p className="text-slate-400 text-xs">{demoQuestions.length} Fragen · ca. 10 Min. · Einzeln bearbeiten, dann vergleichen</p>
+              <h3 className="text-white font-bold text-sm" style={{ fontFamily: "Outfit, sans-serif" }}>Demo-Quiz: {selectedFach.emoji} {selectedFach.label}</h3>
+              <p className="text-slate-400 text-xs">{activeFragen.length} Fragen · ca. 10 Min. · Einzeln bearbeiten, dann vergleichen</p>
             </div>
             {submitted && (
               <div className="ml-auto flex items-center gap-2">
                 <span className={`text-sm font-bold ${score >= 75 ? "text-emerald-400" : score >= 50 ? "text-amber-400" : "text-rose-400"}`} style={{ fontFamily: "Outfit, sans-serif" }}>
-                  {correctCount}/{demoQuestions.length} ({score}%)
+                  {correctCount}/{activeFragen.length} ({score}%)
                 </span>
                 <button onClick={handleReset} className="inline-flex items-center gap-1 px-2 py-1 rounded-lg border border-white/15 text-slate-400 hover:text-white text-xs transition-colors">
                   <RotateCcw size={11} /> Neu
@@ -436,7 +443,7 @@ export default function Phase3Quiz() {
           )}
 
           <div className="p-5 space-y-5" style={{ background: "oklch(0.175 0.028 264.695)" }}>
-            {demoQuestions.map((q, qIdx) => {
+            {activeFragen.map((q, qIdx) => {
               const userAnswer = answers[q.id];
               const isAnswered = userAnswer !== undefined;
               const isCorrect = submitted && userAnswer === q.correct;
@@ -502,7 +509,7 @@ export default function Phase3Quiz() {
                 className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold text-sm transition-all"
                 style={{ fontFamily: "Outfit, sans-serif" }}
               >
-                Quiz auswerten ({Object.keys(answers).length}/{demoQuestions.length} beantwortet)
+                Quiz auswerten ({Object.keys(answers).length}/{activeFragen.length} beantwortet)
               </button>
             ) : (
               <div className="p-4 rounded-xl border border-amber-500/20 bg-amber-500/5">

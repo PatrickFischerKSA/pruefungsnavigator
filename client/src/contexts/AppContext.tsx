@@ -164,6 +164,17 @@ export interface ArchivedSession {
   personB: string;
 }
 
+export interface LehrpersonKommentar {
+  fortschritt: string;
+  kiNutzung: string;
+  lernstrategien: string;
+  reflexion: string;
+  zusammenarbeit: string;
+  personA: string;
+  personB: string;
+  allgemein: string;
+}
+
 export interface AppState {
   // Zwei-Personen-Modus
   personA: string;
@@ -193,6 +204,8 @@ export interface AppState {
   archivedSessions: ArchivedSession[];
   // Lernziele
   lernziele: Lernziel[];
+  // Lehrperson-Kommentare
+  lehrpersonKommentar: LehrpersonKommentar;
 }
 
 const DEFAULT_JOURNAL: JournalEntry = {
@@ -203,6 +216,17 @@ const DEFAULT_JOURNAL: JournalEntry = {
   wasHatFunktioniert: "",
   wasAendereIch: "",
   wasBehaltIchBei: "",
+};
+
+const DEFAULT_LEHRPERSON_KOMMENTAR: LehrpersonKommentar = {
+  fortschritt: "",
+  kiNutzung: "",
+  lernstrategien: "",
+  reflexion: "",
+  zusammenarbeit: "",
+  personA: "",
+  personB: "",
+  allgemein: "",
 };
 
 const DEFAULT_STATE: AppState = {
@@ -221,6 +245,7 @@ const DEFAULT_STATE: AppState = {
   pruefungsdatum: "",
   archivedSessions: [],
   lernziele: [],
+  lehrpersonKommentar: { ...DEFAULT_LEHRPERSON_KOMMENTAR },
 };
 
 // ─── Context ─────────────────────────────────────────────────────────────────
@@ -243,6 +268,8 @@ interface AppContextValue {
   toggleLernziel: (id: string) => void;
   deleteLernziel: (id: string) => void;
   updateLernziel: (id: string, text: string) => void;
+  // Lehrperson-Kommentare
+  updateLehrpersonKommentar: (field: keyof LehrpersonKommentar, value: string) => void;
   resetAll: () => void;
   archiveAndNewSession: () => void;
   deleteArchivedSession: (id: string) => void;
@@ -278,6 +305,7 @@ function loadState(): AppState {
       personA: parsed.personA ?? "Person A",
       personB: parsed.personB ?? "Person B",
       activePerson: parsed.activePerson ?? "A",
+      lehrpersonKommentar: { ...DEFAULT_LEHRPERSON_KOMMENTAR, ...(parsed.lehrpersonKommentar ?? {}) },
     };
   } catch {
     return DEFAULT_STATE;
@@ -379,6 +407,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }));
   }, []);
 
+  const updateLehrpersonKommentar = useCallback((field: keyof LehrpersonKommentar, value: string) => {
+    setState((p) => ({
+      ...p,
+      lehrpersonKommentar: { ...p.lehrpersonKommentar, [field]: value },
+    }));
+  }, []);
+
   const resetAll = useCallback(() => {
     setState(DEFAULT_STATE);
     ["pruefungsnavigator_state_v4", "pruefungsnavigator_state_v3", "pruefungsnavigator_state_v2"].forEach((k) => localStorage.removeItem(k));
@@ -425,6 +460,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       toggleCheckedItem, toggleLerntracker,
       updateJournal, setFingerFeedback,
       addLernziel, toggleLernziel, deleteLernziel, updateLernziel,
+      updateLehrpersonKommentar,
       resetAll, archiveAndNewSession, deleteArchivedSession,
       progressPercent,
       activeJournal, activeFingerFeedback, activePersonName,
