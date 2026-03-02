@@ -14,6 +14,7 @@ import LehrerView from "./pages/LehrerView";
 import Sessions from "./pages/Sessions";
 import PrintView from "./pages/PrintView";
 import NotFound from "./pages/NotFound";
+import OnboardingTour from "./components/OnboardingTour";
 
 function Router() {
   return (
@@ -39,6 +40,7 @@ export default function App() {
         <AppProvider>
           <TooltipProvider>
             <Toaster />
+            <OnboardingTour />
             <Router />
           </TooltipProvider>
         </AppProvider>
