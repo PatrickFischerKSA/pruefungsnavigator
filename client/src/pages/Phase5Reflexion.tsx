@@ -72,6 +72,36 @@ Hilf mir, eine strukturierte Abschlussreflexion (ca. 300 Wörter) zu schreiben, 
 - Was würde ich beim nächsten Mal anders machen?
 - Was habe ich über mein eigenes Lernverhalten gelernt?`,
   },
+  {
+    title: "Lernstrategie-Selbsteinschätzung",
+    prompt: `Ich möchte meine Lernstrategien reflektieren und einschätzen, wie gut ich sie angewendet habe.
+
+Bitte stelle mir 8 Fragen (Skala 1–5) zu folgenden Bereichen:
+1. Planung (Habe ich meinen Lernprozess gut geplant?)
+2. Zeitmanagement (Habe ich meine Zeit effizient genutzt?)
+3. Tiefenverarbeitung (Habe ich den Stoff wirklich verstanden?)
+4. Selbsttests (Habe ich mich regelmässig getestet?)
+5. Zusammenarbeit (Habe ich die Zweiergruppe gut genutzt?)
+6. KI-Nutzung (Habe ich KI-Tools sinnvoll eingesetzt?)
+7. Motivation (Habe ich mich gut motivieren können?)
+8. Reflexion (Habe ich meinen Lernprozess bewusst reflektiert?)
+
+Nach meinen Antworten: Erstelle eine kurze Auswertung mit Stärken und Entwicklungsfeldern.`,
+  },
+  {
+    title: "Nächste Prüfung vorbereiten",
+    prompt: `Ich habe die Prüfungsvorbereitung für [THEMA] abgeschlossen. Basierend auf meinen Erfahrungen:
+
+Was gut funktioniert hat: [EINTRAGEN]
+Was schwierig war: [EINTRAGEN]
+Wie viel Zeit ich hatte: [EINTRAGEN]
+
+Hilf mir, für meine nächste Prüfung:
+1. Einen verbesserten Lernplan zu erstellen
+2. Die 3 wichtigsten Lernstrategien für mich zu identifizieren
+3. Konkrete Massnahmen gegen meine grössten Schwächen zu formulieren
+4. Einen realistischen Zeitplan für die Vorbereitung aufzustellen`,
+  },
 ];
 
 const fiveFingerFeedback = [
@@ -144,13 +174,29 @@ ${fiveFingerFeedback.map((f) => `${f.label}: ${fingerFeedback[f.label] || "(nich
           <div className="flex items-center gap-3 mb-4">
             <div className="phase-badge bg-rose-500/20 border border-rose-500/30 text-rose-300">5</div>
             <div>
-              <p className="text-rose-400 text-xs font-semibold" style={{ fontFamily: "Outfit, sans-serif" }}>Phase 5 von 5</p>
+              <p className="text-rose-400 text-xs font-semibold" style={{ fontFamily: "Outfit, sans-serif" }}>Phase 5 von 5 · 30–40 Min.</p>
               <h1 className="text-2xl font-black text-white" style={{ fontFamily: "Outfit, sans-serif" }}>Reflexion & Feedback</h1>
             </div>
           </div>
           <p className="text-slate-400 text-sm max-w-2xl">
             Reflektiere deinen Lernprozess, hol dir KI-Feedback zu deinen Antworten und dokumentiere deinen Fortschritt. Diese Phase macht dich langfristig zu einer besseren Lernerin / einem besseren Lerner.
           </p>
+        </div>
+
+        {/* Zeitplan */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+          {[
+            { label: "Lernjournal ausfüllen", dauer: "10 Min.", emoji: "📓" },
+            { label: "KI-Feedback einholen", dauer: "10 Min.", emoji: "🤖" },
+            { label: "Peer-Feedback geben", dauer: "10 Min.", emoji: "👥" },
+            { label: "Abschlussreflexion", dauer: "10 Min.", emoji: "✨" },
+          ].map((item) => (
+            <div key={item.label} className="rounded-xl border border-white/8 bg-white/2 p-3 text-center">
+              <div className="text-xl mb-1">{item.emoji}</div>
+              <p className="text-white text-xs font-semibold leading-tight mb-0.5" style={{ fontFamily: "Outfit, sans-serif" }}>{item.label}</p>
+              <p className="text-slate-500 text-xs">{item.dauer}</p>
+            </div>
+          ))}
         </div>
 
         <div className="grid lg:grid-cols-2 gap-6 mb-8">

@@ -11,6 +11,7 @@ import {
   Menu, Printer, Archive
 } from "lucide-react";
 import PomodoroTimer from "./PomodoroTimer";
+import PersonenModus from "./PersonenModus";
 import { useApp } from "@/contexts/AppContext";
 
 const navItems = [
@@ -115,6 +116,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           {/* Trennlinie */}
           {!collapsed && (
             <div className="mx-4 my-3 border-t border-white/8" />
+          )}
+
+          {/* Personen-Modus */}
+          {!collapsed && (
+            <div className="mx-2 mb-3">
+              <PersonenModus />
+            </div>
           )}
 
           {/* Extra-Navigation */}

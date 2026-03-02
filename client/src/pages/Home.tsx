@@ -4,11 +4,13 @@
    Erweiterungen: Fortschrittsbalken, Fach-Selektor, localStorage
    ============================================================ */
 import { Link } from "wouter";
+import { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
 import ProgressBar from "@/components/ProgressBar";
 import FachSelector from "@/components/FachSelector";
+import Confetti from "@/components/Confetti";
 import { useApp } from "@/contexts/AppContext";
-import { Upload, Brain, FlaskConical, BookOpen, Sparkles, ArrowRight, Users, Clock, Target, Zap, RotateCcw, Archive, Printer } from "lucide-react";
+import { Upload, Brain, FlaskConical, BookOpen, Sparkles, ArrowRight, Users, Clock, Target, Zap, RotateCcw, Archive, Printer, Trophy } from "lucide-react";
 import { toast } from "sonner";
 
 const phases = [
@@ -21,7 +23,7 @@ const phases = [
     icon: Upload,
     color: "cyan",
     tools: ["NotebookLM", "Google Drive"],
-    duration: "10–15 Min.",
+    duration: "20–30 Min.",
     borderColor: "border-cyan-500/30",
     bgColor: "bg-cyan-500/8",
     iconColor: "text-cyan-400",
@@ -38,7 +40,7 @@ const phases = [
     icon: Brain,
     color: "emerald",
     tools: ["NotebookLM", "ChatGPT", "Fobizz"],
-    duration: "20–30 Min.",
+    duration: "40–60 Min.",
     borderColor: "border-emerald-500/30",
     bgColor: "bg-emerald-500/8",
     iconColor: "text-emerald-400",
@@ -55,7 +57,7 @@ const phases = [
     icon: FlaskConical,
     color: "amber",
     tools: ["ChatGPT", "Quizlet", "Revisely"],
-    duration: "30–45 Min.",
+    duration: "30–40 Min.",
     borderColor: "border-amber-500/30",
     bgColor: "bg-amber-500/8",
     iconColor: "text-amber-400",
@@ -72,7 +74,7 @@ const phases = [
     icon: BookOpen,
     color: "purple",
     tools: ["CryptPad", "Miro", "Excalidraw"],
-    duration: "15–20 Min.",
+    duration: "40–50 Min.",
     borderColor: "border-purple-500/30",
     bgColor: "bg-purple-500/8",
     iconColor: "text-purple-400",
@@ -89,7 +91,7 @@ const phases = [
     icon: Sparkles,
     color: "rose",
     tools: ["ChatGPT", "CryptPad", "Fobizz"],
-    duration: "15–20 Min.",
+    duration: "30–40 Min.",
     borderColor: "border-rose-500/30",
     bgColor: "bg-rose-500/8",
     iconColor: "text-rose-400",
@@ -102,12 +104,23 @@ const phases = [
 const stats = [
   { label: "Phasen", value: "5", icon: Target, color: "text-cyan-400" },
   { label: "Gratis-Tools", value: "12+", icon: Zap, color: "text-emerald-400" },
-  { label: "Lernzeit", value: "90–130 Min.", icon: Clock, color: "text-amber-400" },
+  { label: "Lernzeit", value: "180–240 Min.", icon: Clock, color: "text-amber-400" },
   { label: "Teamgrösse", value: "2 Personen", icon: Users, color: "text-purple-400" },
 ];
 
 export default function Home() {
-  const { state, resetAll, archiveAndNewSession } = useApp();
+  const { state, resetAll, archiveAndNewSession, progressPercent } = useApp();
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [prevPercent, setPrevPercent] = useState(progressPercent);
+
+  useEffect(() => {
+    if (progressPercent === 100 && prevPercent < 100) {
+      setShowConfetti(true);
+      toast.success("🎉 Alle 5 Phasen abgeschlossen! Ausgezeichnete Vorbereitung!", { duration: 6000 });
+      setTimeout(() => setShowConfetti(false), 5000);
+    }
+    setPrevPercent(progressPercent);
+  }, [progressPercent, prevPercent]);
 
   const handleNewSession = () => {
     const hasContent = state.completedPhases.length > 0 ||
@@ -132,7 +145,24 @@ export default function Home() {
 
   return (
     <Layout>
+      <Confetti active={showConfetti} />
       <div className="min-h-screen">
+        {/* 100% Abschluss-Banner */}
+        {progressPercent === 100 && (
+          <div className="border-b border-emerald-500/30 px-6 py-3 flex items-center gap-3" style={{ background: "oklch(0.208 0.05 160)" }}>
+            <Trophy size={16} className="text-emerald-400" />
+            <span className="text-emerald-300 text-sm font-semibold" style={{ fontFamily: "Outfit, sans-serif" }}>
+              Alle 5 Phasen abgeschlossen – hervorragende Prüfungsvorbereitung!
+            </span>
+            <button
+              onClick={() => { archiveAndNewSession(); toast.success("Session archiviert!"); }}
+              className="ml-auto text-xs text-emerald-400 hover:text-emerald-300 border border-emerald-500/30 px-3 py-1 rounded-lg hover:bg-emerald-500/10 transition-colors"
+              style={{ fontFamily: "Outfit, sans-serif" }}
+            >
+              Neue Session starten
+            </button>
+          </div>
+        )}
         {/* Hero Section */}
         <div
           className="relative overflow-hidden"
